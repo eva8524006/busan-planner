@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Busan Trip</title>
+    <title>Busan Trip 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -12,49 +12,16 @@
     <style>
         body { font-family: 'Noto Sans TC', 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; touch-action: pan-y; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        .header-banner { 
-            width: 100%; 
-            height: 350px; 
-            background-image: url('image_ac77bf.jpg'); 
-            background-size: cover; 
-            background-position: center; 
-            position: relative; 
-        }
-        .header-overlay { 
-            position: absolute; 
-            inset: 0; 
-            background: linear-gradient(to top, rgba(248,250,252,1) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.4) 100%); 
-        }
-
+        .header-banner { width: 100%; height: 350px; background-image: url('image_ac77bf.jpg'); background-size: cover; background-position: center; position: relative; }
+        .header-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(248,250,252,1) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.4) 100%); }
         .main-content { margin-top: -60px; border-radius: 40px 40px 0 0; background: #f8fafc; min-height: 80vh; padding: 24px; position: relative; }
-        
-        .title-group {
-            position: absolute;
-            bottom: 140px;
-            right: 24px;
-            text-align: right;
-            z-index: 10;
-        }
-
-        .nav-container { 
-            position: absolute; 
-            bottom: 80px; 
-            right: 24px; 
-            display: flex; 
-            gap: 8px; 
-            background: rgba(255,255,255,0.9); 
-            backdrop-filter: blur(10px); 
-            padding: 6px; 
-            border-radius: 22px; 
-            z-index: 30;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-        
+        .title-group { position: absolute; bottom: 140px; right: 24px; text-align: right; z-index: 10; }
+        .nav-container { position: absolute; bottom: 80px; right: 24px; display: flex; gap: 8px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 6px; border-radius: 22px; z-index: 30; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .tab-btn { transition: all 0.3s; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 16px; }
         .tab-btn.active { background-color: #3b82f6; color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4); }
         .date-item.active { background: #3b82f6; color: white; border-color: #3b82f6; transform: scale(1.05); }
         .time-tag { background: #eff6ff; color: #3b82f6; padding: 2px 8px; border-radius: 8px; font-family: 'Inter', monospace; font-weight: 700; font-size: 11px; }
+        .cost-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
     </style>
 </head>
 <body>
@@ -89,7 +56,6 @@
                         <span class="text-xl font-black font-mono">{{ d.day }}</span>
                     </div>
                 </div>
-
                 <div class="space-y-4">
                     <div v-for="item in sortedItinerary" :key="item.id" class="bg-white p-5 rounded-[2rem] border border-gray-50 shadow-sm flex gap-4 items-center">
                         <div class="p-4 rounded-2xl bg-blue-50 text-blue-500"><i :data-lucide="item.icon || 'map-pin'" class="w-5 h-5"></i></div>
@@ -121,42 +87,25 @@
                             <i data-lucide="map-pin" class="w-3 h-3"></i> Nampo-dong, Busan
                         </p>
                     </div>
-                    <button @click="openMap('https://www.booking.com/hotel/kr/stanford-inn-busan.zh-tw.html')" 
-                            class="w-full bg-blue-500 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg">
+                    <button @click="openMap('https://www.booking.com/hotel/kr/stanford-inn-busan.zh-tw.html')" class="w-full bg-blue-500 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg">
                         <i data-lucide="external-link" class="w-4 h-4"></i> Booking Details
                     </button>
                 </div>
-                
                 <div class="space-y-3">
                     <div class="bg-slate-800 p-6 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="plane-takeoff" class="w-12 h-12"></i></div>
                         <p class="text-[10px] text-blue-400 font-bold uppercase mb-4 tracking-widest">Departure Flight</p>
                         <div class="flex justify-between items-center">
-                            <div class="text-center">
-                                <p class="text-lg font-black leading-none">TPE</p>
-                                <p class="text-[10px] opacity-50 mt-1">4/10 02:50</p>
-                            </div>
+                            <div class="text-center"><p class="text-lg font-black leading-none">TPE</p><p class="text-[10px] opacity-50 mt-1">4/10 02:50</p></div>
                             <i data-lucide="move-right" class="w-5 h-5 text-blue-400"></i>
-                            <div class="text-center">
-                                <p class="text-lg font-black leading-none">PUS</p>
-                                <p class="text-[10px] opacity-50 mt-1">4/10 06:10</p>
-                            </div>
+                            <div class="text-center"><p class="text-lg font-black leading-none">PUS</p><p class="text-[10px] opacity-50 mt-1">4/10 06:10</p></div>
                         </div>
                     </div>
-
                     <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
-                        <div class="absolute top-0 right-0 p-4 text-gray-50"><i data-lucide="plane-landing" class="w-12 h-12"></i></div>
                         <p class="text-[10px] text-blue-400 font-bold uppercase mb-4 tracking-widest">Return Flight</p>
                         <div class="flex justify-between items-center text-gray-800">
-                            <div class="text-center">
-                                <p class="text-lg font-black leading-none">PUS</p>
-                                <p class="text-[10px] text-gray-400 mt-1">4/12 20:45</p>
-                            </div>
+                            <div class="text-center"><p class="text-lg font-black leading-none">PUS</p><p class="text-[10px] text-gray-400 mt-1">4/12 20:45</p></div>
                             <i data-lucide="move-right" class="w-5 h-5 text-blue-400"></i>
-                            <div class="text-center">
-                                <p class="text-lg font-black leading-none">TPE</p>
-                                <p class="text-[10px] text-gray-400 mt-1">Arrival</p>
-                            </div>
+                            <div class="text-center"><p class="text-lg font-black leading-none">TPE</p><p class="text-[10px] text-gray-400 mt-1">Arrival</p></div>
                         </div>
                     </div>
                 </div>
@@ -174,11 +123,37 @@
                 </div>
             </div>
 
-            <div v-if="currentTab === 'cost'" class="space-y-4">
-                <div class="bg-slate-900 p-10 rounded-[3rem] text-white shadow-2xl">
-                    <p class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-2 text-blue-400">Total Expenses</p>
-                    <p class="text-3xl font-black mb-1">₩ {{ db.cost.reduce((s,i)=>s+(i.currency==='KRW'?i.amount:0),0).toLocaleString() }}</p>
-                    <p class="text-sm text-gray-400">Ready to spend!</p>
+            <div v-if="currentTab === 'cost'" class="space-y-6">
+                <div class="cost-card p-10 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
+                    <div class="relative z-10">
+                        <p class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-2 text-blue-400">Total Expenses (KRW)</p>
+                        <p class="text-3xl font-black mb-1">₩ {{ totals.krw.toLocaleString() }}</p>
+                        <p class="text-lg font-bold text-gray-400">≈ TWD {{ totals.twd.toLocaleString() }}</p>
+                    </div>
+                    <i data-lucide="banknote" class="absolute -bottom-4 -right-4 w-32 h-32 opacity-10"></i>
+                </div>
+
+                <div class="flex justify-between items-center px-4">
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Rate: 1 TWD = {{ exchangeRate }} KRW</p>
+                    <button @click="fetchRate" class="text-[10px] bg-white border px-3 py-1 rounded-full text-blue-500 font-bold shadow-sm">更新匯率</button>
+                </div>
+
+                <div class="space-y-3">
+                    <div v-for="item in db.cost" :key="item.id" class="bg-white p-5 rounded-3xl border border-gray-50 flex justify-between items-center shadow-sm">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
+                            <p class="text-[10px] text-gray-400 uppercase font-bold">{{ item.currency }}</p>
+                        </div>
+                        <div class="text-right flex items-center gap-4">
+                            <div>
+                                <p class="font-black text-gray-800 text-lg">{{ item.currency === 'KRW' ? '₩' : '$' }} {{ item.amount.toLocaleString() }}</p>
+                                <p class="text-[10px] text-gray-400">
+                                    ≈ {{ item.currency === 'KRW' ? '$' + Math.round(item.amount / exchangeRate).toLocaleString() : '₩' + Math.round(item.amount * exchangeRate).toLocaleString() }}
+                                </p>
+                            </div>
+                            <button @click="deleteItem('cost', item.id)" class="text-gray-200"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -188,7 +163,7 @@
         </button>
 
         <div v-if="showModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-end justify-center">
-            <div class="bg-white w-full max-w-md rounded-t-[3.5rem] p-10 max-h-[90vh] overflow-y-auto">
+            <div class="bg-white w-full max-w-md rounded-t-[3.5rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="text-2xl font-black text-gray-800">編輯項目</h3>
                     <button @click="showModal = false" class="bg-gray-100 p-2 rounded-full text-gray-400"><i data-lucide="x"></i></button>
@@ -199,7 +174,8 @@
                     <input v-model="form.location" type="text" placeholder="Map Link / 地點" class="w-full border-b-2 py-3 outline-none text-blue-600">
                     <div class="flex gap-6">
                         <div class="flex-1"><label class="text-[10px] font-black text-gray-400">時間</label><input v-model="form.time" type="time" class="w-full border-b-2 py-3 outline-none font-bold"></div>
-                        <div class="flex-1"><label class="text-[10px] font-black text-gray-400">圖標</label>
+                        <div class="flex-1">
+                            <label class="text-[10px] font-black text-gray-400">圖標</label>
                             <select v-model="form.icon" class="w-full border-b-2 py-3 outline-none bg-transparent">
                                 <option value="map-pin">景點</option><option value="utensils">餐飲</option><option value="shopping-cart">購物</option><option value="coffee">咖啡廳</option><option value="plane">交通</option><option value="sparkles">亮點</option>
                             </select>
@@ -212,10 +188,16 @@
                 </div>
 
                 <div v-if="currentTab === 'cost'" class="space-y-6">
-                    <input v-model="form.name" type="text" placeholder="支出項目" class="w-full border-b-2 py-3 outline-none font-bold text-xl">
-                    <div class="flex gap-4">
-                        <select v-model="form.currency" class="border-b-2 py-3 outline-none"><option value="KRW">KRW</option><option value="TWD">TWD</option></select>
-                        <input v-model.number="form.amount" type="number" placeholder="金額" class="flex-1 border-b-2 py-3 outline-none font-bold">
+                    <input v-model="form.name" type="text" placeholder="支出項目 (如: 晚餐)" class="w-full border-b-2 py-3 outline-none font-bold text-xl">
+                    <div class="flex gap-4 items-end">
+                        <div class="flex-1">
+                            <label class="text-[10px] font-black text-gray-400 uppercase">金額</label>
+                            <input v-model.number="form.amount" type="number" class="w-full border-b-2 py-3 outline-none font-bold text-2xl">
+                        </div>
+                        <select v-model="form.currency" class="border-b-2 py-3 outline-none font-bold text-blue-500 text-lg">
+                            <option value="KRW">KRW (₩)</option>
+                            <option value="TWD">TWD ($)</option>
+                        </select>
                     </div>
                 </div>
 
@@ -235,6 +217,8 @@
                 const showModal = ref(false);
                 const isEditing = ref(false);
                 const editingId = ref(null);
+                const exchangeRate = ref(42); // 預設匯率
+
                 const form = ref({ name: '', location: '', icon: 'map-pin', time: '', amount: 0, currency: 'KRW', note: '' });
 
                 const initialData = {
@@ -245,9 +229,9 @@
                         { "id": 104, "date": "4/10", "time": "12:00", "name": "螞蟻家辣炒章魚 南浦洞", "icon": "utensils", "location": "https://maps.app.goo.gl/nGTpxmNqcgeQ1ARf9?g_st=ic" },
                         { "id": 105, "date": "4/10", "time": "13:00", "name": "Olive Young", "icon": "shopping-cart", "location": "Olive Young" },
                         { "id": 106, "date": "4/10", "time": "14:00", "name": "국제약국 (Gukje Pharmacy國際藥局)", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/vYkZ1uj2j4b2Nj2M7?g_st=ic" },
-                        { "id": 107, "date": "4/10", "time": "17:00", "name": "南浦洞逛街", "icon": "shopping-cart", "location": "南浦洞" },
-                        { "id": 108, "date": "4/10", "time": "19:00", "name": "樂天超市", "icon": "shopping-cart", "location": "樂天超市" },						
-                        { "id": 201, "date": "4/11", "time": "11:00", "name": "海雲台 Busan butter sand", "icon": "shopping-cart", "location": "https://naver.me/5vY3KzWp" },
+                        { "id": 107, "date": "4/10", "time": "17:00", "name": "南浦洞逛街", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/XkWm6WHjm3bqPacs9" },
+                        { "id": 108, "date": "4/10", "time": "19:00", "name": "樂天超市", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/6BwX9Hf6mF3R748H8" },						
+                        { "id": 201, "date": "4/11", "time": "11:00", "name": "海雲台 Busan Bada Sand", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/YtBT6VxaHffRkv4B7" },
                         { "id": 202, "date": "4/11", "time": "11:10", "name": "Delight project 貝果店", "icon": "shopping-cart", "location": "https://naver.me/GdTEaA1g" },
                         { "id": 203, "date": "4/11", "time": "11:30", "name": "海雲台名品糖餅", "icon": "utensils", "location": "https://naver.me/FmG8sKRg" },
                         { "id": 204, "date": "4/11", "time": "13:00", "name": "Keveren House 瑪費蛋糕", "icon": "coffee", "location": "https://naver.me/FgEema7r" },
@@ -262,24 +246,53 @@
                         { "id": 303, "date": "4/12", "time": "10:10", "name": "棉被168", "icon": "shopping-cart", "location": "棉被168" },
                         { "id": 304, "date": "4/12", "time": "12:00", "name": "山莊1988 西面本店 馬鈴薯店", "icon": "utensils", "location": "https://naver.me/5ulXyugg" },
                         { "id": 305, "date": "4/12", "time": "13:00", "name": "All Sunday 貝果廣安里", "icon": "utensils", "location": "https://naver.me/FriDJCJv" },
-                        { "id": 306, "date": "4/12", "time": "20:45", "name": "釜山金海機場", "icon": "map-pin", "location": "PUS", "note": "回程" },
-                  ],
-                  "shop": [
-                    { "id": 501, "name": "北臉 (The North Face)", "done": false },
-                    { "id": 502, "name": "Busan butter sand", "done": false },
-                    { "id": 503, "name": "蜂蜜人蔘片", "done": false },
-                    { "id": 504, "name": "阿珠媽背心", "done": false },
-                    { "id": 505, "name": "Loe 香水", "done": false },
-                    { "id": 506, "name": "Object 矮袋鼠", "done": false },
-                    { "id": 507, "name": "樂天超市", "done": false },
-                    { "id": 508, "name": "二代名果", "done": false }
-                  ],
+                        { "id": 306, "date": "4/12", "time": "20:45", "name": "釜山金海機場", "icon": "map-pin", "location": "PUS", "note": "回程" }
+                    ],
+                    "shop": [
+                        { "id": 501, "name": "北臉 (The North Face)", "done": false },
+                        { "id": 502, "name": "Busan butter sand", "done": false },
+                        { "id": 503, "name": "蜂蜜人蔘片", "done": false },
+                        { "id": 504, "name": "阿珠媽背心", "done": false },
+                        { "id": 505, "name": "Loe 香水", "done": false },
+                        { "id": 506, "name": "Object 矮袋鼠", "done": false },
+                        { "id": 507, "name": "樂天超市", "done": false },
+                        { "id": 508, "name": "二代名果", "done": false }
+                    ],
                     "cost": []
                 };
 
                 const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || initialData);
                 const dates = [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}];
-                
+
+                // 即時匯率 API
+                const fetchRate = async () => {
+                    try {
+                        const res = await fetch('https://open.er-api.com/v6/latest/TWD');
+                        const data = await res.json();
+                        if (data.rates && data.rates.KRW) {
+                            exchangeRate.value = parseFloat(data.rates.KRW.toFixed(2));
+                        }
+                    } catch (e) {
+                        console.log("匯率更新失敗，使用預設值");
+                    }
+                };
+
+                // 計算總花費
+                const totals = computed(() => {
+                    let totalKrw = 0;
+                    let totalTwd = 0;
+                    db.value.cost.forEach(item => {
+                        if (item.currency === 'KRW') {
+                            totalKrw += item.amount;
+                            totalTwd += item.amount / exchangeRate.value;
+                        } else {
+                            totalTwd += item.amount;
+                            totalKrw += item.amount * exchangeRate.value;
+                        }
+                    });
+                    return { krw: Math.round(totalKrw), twd: Math.round(totalTwd) };
+                });
+
                 const sortedItinerary = computed(() => {
                     return db.value.itinerary.filter(i => i.date === selectedDate.value).sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
                 });
@@ -316,17 +329,25 @@
 
                 const openMap = (loc) => {
                     if(!loc || loc === 'TPE' || loc === 'PUS') return;
-                    window.open(loc.startsWith('http') ? loc : `https://www.google.com/maps/search/${encodeURIComponent(loc)}`, '_blank');
+                    window.open(loc.startsWith('http') ? loc : `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(loc)}`, '_blank');
                 };
 
                 const exportData = () => {
                     navigator.clipboard.writeText(JSON.stringify(db.value, null, 2)).then(() => alert('資料已複製'));
                 };
 
-                onMounted(() => refreshIcons());
+                onMounted(() => {
+                    fetchRate();
+                    refreshIcons();
+                });
+
                 watch([currentTab, selectedDate, showModal], () => refreshIcons());
 
-                return { currentTab, selectedDate, dates, db, sortedItinerary, showModal, form, exportData, openAddModal, openEditModal, handleSave, deleteItem, openMap, saveData };
+                return { 
+                    currentTab, selectedDate, dates, db, sortedItinerary, showModal, form, 
+                    exportData, openAddModal, openEditModal, handleSave, deleteItem, openMap, 
+                    saveData, exchangeRate, totals, fetchRate 
+                };
             }
         }).mount('#app');
     </script>
