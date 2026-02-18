@@ -79,7 +79,7 @@
             <div v-if="currentTab === 'info'" class="space-y-6">
                 <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
                     <h3 class="font-bold text-gray-800 flex items-center gap-2 mb-4">
-                        <i data-lucide="bed-double" class="w-5 h-5 text-blue-500"></i> Hotel Reservation
+                        <i data-lucide="bed-double" class="w-5 h-5 text-blue-500"></i> Hotel
                     </h3>
                     <div class="p-4 bg-slate-50 rounded-3xl mb-4">
                         <p class="text-xl font-black text-gray-800">Stanford Busan Hotel</p>
@@ -87,26 +87,13 @@
                             <i data-lucide="map-pin" class="w-3 h-3"></i> Nampo-dong, Busan
                         </p>
                     </div>
-                    <button @click="openMap('https://www.booking.com/hotel/kr/stanford-inn-busan.zh-tw.html')" class="w-full bg-blue-500 text-white py-4 rounded-2xl font-black flex items-center justify-center gap-2 shadow-lg">
-                        <i data-lucide="external-link" class="w-4 h-4"></i> Booking Details
-                    </button>
                 </div>
-                <div class="space-y-3">
-                    <div class="bg-slate-800 p-6 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
-                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-4 tracking-widest">Departure Flight</p>
-                        <div class="flex justify-between items-center">
-                            <div class="text-center"><p class="text-lg font-black leading-none">TPE</p><p class="text-[10px] opacity-50 mt-1">4/10 02:50</p></div>
-                            <i data-lucide="move-right" class="w-5 h-5 text-blue-400"></i>
-                            <div class="text-center"><p class="text-lg font-black leading-none">PUS</p><p class="text-[10px] opacity-50 mt-1">4/10 06:10</p></div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
-                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-4 tracking-widest">Return Flight</p>
-                        <div class="flex justify-between items-center text-gray-800">
-                            <div class="text-center"><p class="text-lg font-black leading-none">PUS</p><p class="text-[10px] text-gray-400 mt-1">4/12 20:45</p></div>
-                            <i data-lucide="move-right" class="w-5 h-5 text-blue-400"></i>
-                            <div class="text-center"><p class="text-lg font-black leading-none">TPE</p><p class="text-[10px] text-gray-400 mt-1">Arrival</p></div>
-                        </div>
+                <div class="bg-slate-800 p-6 rounded-[2.5rem] text-white shadow-xl">
+                    <p class="text-[10px] text-blue-400 font-bold uppercase mb-4 tracking-widest">Flight Information</p>
+                    <div class="flex justify-between items-center text-center">
+                        <div><p class="text-lg font-black">TPE</p><p class="text-[10px] opacity-50">4/10 02:50</p></div>
+                        <i data-lucide="move-right" class="text-blue-400"></i>
+                        <div><p class="text-lg font-black">PUS</p><p class="text-[10px] opacity-50">4/10 06:10</p></div>
                     </div>
                 </div>
             </div>
@@ -117,42 +104,36 @@
                     <span class="text-xs font-bold text-blue-500 bg-blue-50 px-3 py-1 rounded-full">{{ db.shop.filter(s => s.done).length }}/{{ db.shop.length }}</span>
                 </div>
                 <div v-for="item in db.shop" :key="item.id" class="flex items-center gap-4 bg-white p-5 rounded-3xl border border-gray-100" :class="{'opacity-60': item.done}">
-                    <input type="checkbox" v-model="item.done" @change="saveData" class="w-6 h-6 rounded-full border-2 border-blue-500 text-blue-500 focus:ring-blue-500 transition-all">
-                    <p :class="{'line-through': item.done}" class="flex-1 font-bold text-gray-700 text-lg">{{ item.name }}</p>
-                    <button @click="deleteItem('shop', item.id)" class="text-gray-200 hover:text-red-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <input type="checkbox" v-model="item.done" @change="saveData" class="w-6 h-6 rounded-full border-2 border-blue-500 text-blue-500">
+                    <p :class="{'line-through': item.done}" class="flex-1 font-bold text-gray-700">{{ item.name }}</p>
+                    <button @click="deleteItem('shop', item.id)" class="text-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
             </div>
 
             <div v-if="currentTab === 'cost'" class="space-y-6">
                 <div class="cost-card p-10 rounded-[3rem] text-white shadow-2xl relative overflow-hidden">
-                    <div class="relative z-10">
-                        <p class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-2 text-blue-400">Total Expenses (KRW)</p>
-                        <p class="text-3xl font-black mb-1">₩ {{ totals.krw.toLocaleString() }}</p>
-                        <p class="text-lg font-bold text-gray-400">≈ TWD {{ totals.twd.toLocaleString() }}</p>
-                    </div>
+                    <p class="text-[10px] opacity-50 font-bold uppercase tracking-[0.3em] mb-2 text-blue-400">Total Expenses</p>
+                    <p class="text-3xl font-black mb-1">₩ {{ totals.krw.toLocaleString() }}</p>
+                    <p class="text-lg font-bold text-gray-400">≈ TWD {{ totals.twd.toLocaleString() }}</p>
                     <i data-lucide="banknote" class="absolute -bottom-4 -right-4 w-32 h-32 opacity-10"></i>
                 </div>
 
                 <div class="flex justify-between items-center px-4">
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Rate: 1 TWD = {{ exchangeRate }} KRW</p>
-                    <button @click="fetchRate" class="text-[10px] bg-white border px-3 py-1 rounded-full text-blue-500 font-bold shadow-sm">更新匯率</button>
+                    <p class="text-[10px] text-gray-400 font-bold">1 TWD = {{ exchangeRate }} KRW</p>
+                    <button @click="fetchRate" class="text-[10px] bg-white border px-3 py-1 rounded-full text-blue-500 font-bold">更新匯率</button>
                 </div>
 
                 <div class="space-y-3">
-                    <div v-for="item in db.cost" :key="item.id" class="bg-white p-5 rounded-3xl border border-gray-50 flex justify-between items-center shadow-sm">
+                    <div v-for="item in db.cost" :key="item.id" class="bg-white p-5 rounded-3xl border border-gray-50 flex justify-between items-center">
                         <div class="flex-1">
                             <h4 class="font-bold text-gray-800">{{ item.name }}</h4>
                             <p class="text-[10px] text-gray-400 uppercase font-bold">{{ item.currency }}</p>
                         </div>
-                        <div class="text-right flex items-center gap-4">
-                            <div>
-                                <p class="font-black text-gray-800 text-lg">{{ item.currency === 'KRW' ? '₩' : '$' }} {{ item.amount.toLocaleString() }}</p>
-                                <p class="text-[10px] text-gray-400">
-                                    ≈ {{ item.currency === 'KRW' ? '$' + Math.round(item.amount / exchangeRate).toLocaleString() : '₩' + Math.round(item.amount * exchangeRate).toLocaleString() }}
-                                </p>
-                            </div>
-                            <button @click="deleteItem('cost', item.id)" class="text-gray-200"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        <div class="text-right">
+                            <p class="font-black text-gray-800">{{ item.currency === 'KRW' ? '₩' : '$' }} {{ item.amount.toLocaleString() }}</p>
+                            <p class="text-[10px] text-gray-400">≈ {{ item.currency === 'KRW' ? '$' + Math.round(item.amount / exchangeRate) : '₩' + Math.round(item.amount * exchangeRate) }}</p>
                         </div>
+                        <button @click="deleteItem('cost', item.id)" class="ml-4 text-gray-200"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </div>
                 </div>
             </div>
@@ -163,40 +144,32 @@
         </button>
 
         <div v-if="showModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-end justify-center">
-            <div class="bg-white w-full max-w-md rounded-t-[3.5rem] p-10 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div class="bg-white w-full max-w-md rounded-t-[3.5rem] p-10 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-center mb-8">
                     <h3 class="text-2xl font-black text-gray-800">編輯項目</h3>
                     <button @click="showModal = false" class="bg-gray-100 p-2 rounded-full text-gray-400"><i data-lucide="x"></i></button>
                 </div>
                 
-                <div v-if="currentTab === 'itinerary' || currentTab === 'info'" class="space-y-6">
-                    <input v-model="form.name" type="text" placeholder="名稱" class="w-full border-b-2 py-3 outline-none font-bold text-xl focus:border-blue-500">
-                    <input v-model="form.location" type="text" placeholder="Map Link / 地點" class="w-full border-b-2 py-3 outline-none text-blue-600">
+                <div v-if="currentTab === 'itinerary'" class="space-y-6">
+                    <input v-model="form.name" type="text" placeholder="名稱" class="w-full border-b-2 py-3 outline-none font-bold text-xl">
+                    <input v-model="form.location" type="text" placeholder="地圖連結" class="w-full border-b-2 py-3 outline-none text-blue-600">
                     <div class="flex gap-6">
-                        <div class="flex-1"><label class="text-[10px] font-black text-gray-400">時間</label><input v-model="form.time" type="time" class="w-full border-b-2 py-3 outline-none font-bold"></div>
+                        <div class="flex-1"><label class="text-[10px] text-gray-400 uppercase">時間</label><input v-model="form.time" type="time" class="w-full border-b-2 py-3 outline-none font-bold"></div>
                         <div class="flex-1">
-                            <label class="text-[10px] font-black text-gray-400">圖標</label>
+                            <label class="text-[10px] text-gray-400 uppercase">圖標</label>
                             <select v-model="form.icon" class="w-full border-b-2 py-3 outline-none bg-transparent">
-                                <option value="map-pin">景點</option><option value="utensils">餐飲</option><option value="shopping-cart">購物</option><option value="coffee">咖啡廳</option><option value="plane">交通</option><option value="sparkles">亮點</option>
+                                <option value="map-pin">景點</option><option value="utensils">餐飲</option><option value="shopping-cart">購物</option><option value="coffee">咖啡</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <div v-if="currentTab === 'shop'" class="space-y-6">
-                    <input v-model="form.name" type="text" placeholder="想買什麼？" class="w-full border-b-2 py-3 outline-none font-bold text-xl focus:border-blue-500">
-                </div>
-
                 <div v-if="currentTab === 'cost'" class="space-y-6">
-                    <input v-model="form.name" type="text" placeholder="支出項目 (如: 晚餐)" class="w-full border-b-2 py-3 outline-none font-bold text-xl">
+                    <input v-model="form.name" type="text" placeholder="支出項目" class="w-full border-b-2 py-3 outline-none font-bold text-xl">
                     <div class="flex gap-4 items-end">
-                        <div class="flex-1">
-                            <label class="text-[10px] font-black text-gray-400 uppercase">金額</label>
-                            <input v-model.number="form.amount" type="number" class="w-full border-b-2 py-3 outline-none font-bold text-2xl">
-                        </div>
-                        <select v-model="form.currency" class="border-b-2 py-3 outline-none font-bold text-blue-500 text-lg">
-                            <option value="KRW">KRW (₩)</option>
-                            <option value="TWD">TWD ($)</option>
+                        <div class="flex-1"><label class="text-[10px] text-gray-400 uppercase">金額</label><input v-model.number="form.amount" type="number" class="w-full border-b-2 py-3 outline-none font-bold text-2xl"></div>
+                        <select v-model="form.currency" class="border-b-2 py-3 outline-none font-bold text-blue-500">
+                            <option value="KRW">KRW</option><option value="TWD">TWD</option>
                         </select>
                     </div>
                 </div>
@@ -217,20 +190,22 @@
                 const showModal = ref(false);
                 const isEditing = ref(false);
                 const editingId = ref(null);
-                const exchangeRate = ref(42); // 預設匯率
-
+                const exchangeRate = ref(42);
                 const form = ref({ name: '', location: '', icon: 'map-pin', time: '', amount: 0, currency: 'KRW', note: '' });
 
+                // 這裡會抓取你提供的最新 JSON 資料
                 const initialData = {
                     "itinerary": [
                         { "id": 101, "date": "4/10", "time": "02:50", "name": "桃園機場 (去程)", "icon": "plane", "location": "TPE" },
                         { "id": 102, "date": "4/10", "time": "06:10", "name": "釜山機場", "icon": "map-pin", "location": "PUS" },
                         { "id": 103, "date": "4/10", "time": "09:00", "name": "동삼해수천（影島賞櫻 🌸）", "icon": "sparkles", "location": "https://maps.app.goo.gl/roJYgNsJ1EbKKoLd6?g_st=ic" },
+                        { "id": 1771424814143, "date": "4/10", "time": "07:00", "name": "濟州家", "icon": "utensils", "location": "https://naver.me/GtYmzjVh" },
                         { "id": 104, "date": "4/10", "time": "12:00", "name": "螞蟻家辣炒章魚 南浦洞", "icon": "utensils", "location": "https://maps.app.goo.gl/nGTpxmNqcgeQ1ARf9?g_st=ic" },
                         { "id": 105, "date": "4/10", "time": "13:00", "name": "Olive Young", "icon": "shopping-cart", "location": "Olive Young" },
                         { "id": 106, "date": "4/10", "time": "14:00", "name": "국제약국 (Gukje Pharmacy國際藥局)", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/vYkZ1uj2j4b2Nj2M7?g_st=ic" },
                         { "id": 107, "date": "4/10", "time": "17:00", "name": "南浦洞逛街", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/XkWm6WHjm3bqPacs9" },
-                        { "id": 108, "date": "4/10", "time": "19:00", "name": "樂天超市", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/6BwX9Hf6mF3R748H8" },						
+                        { "id": 108, "date": "4/10", "time": "19:00", "name": "樂天超市", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/6BwX9Hf6mF3R748H8" },
+                        { "id": 1771424871843, "date": "4/11", "time": "09:00", "name": "Egg drop", "icon": "utensils", "location": "https://naver.me/FetHsTwc" },
                         { "id": 201, "date": "4/11", "time": "11:00", "name": "海雲台 Busan Bada Sand", "icon": "shopping-cart", "location": "https://maps.app.goo.gl/YtBT6VxaHffRkv4B7" },
                         { "id": 202, "date": "4/11", "time": "11:10", "name": "Delight project 貝果店", "icon": "shopping-cart", "location": "https://naver.me/GdTEaA1g" },
                         { "id": 203, "date": "4/11", "time": "11:30", "name": "海雲台名品糖餅", "icon": "utensils", "location": "https://naver.me/FmG8sKRg" },
@@ -241,9 +216,8 @@
                         { "id": 208, "date": "4/11", "time": "16:00", "name": "西面逛街", "icon": "shopping-cart", "location": "西面" },
                         { "id": 209, "date": "4/11", "time": "17:00", "name": "고하순 烤肉店", "icon": "utensils", "location": "https://naver.me/GSQwnZgY" },
                         { "id": 210, "date": "4/11", "time": "18:00", "name": "Puff麵包店", "icon": "map-pin", "location": "https://naver.me/xiLnU6Iq" },
-                        { "id": 301, "date": "4/12", "time": "09:00", "name": "本粥 本店 鮑魚粥", "icon": "utensils", "location": "https://naver.me/G0p9FCo0" },
-                        { "id": 302, "date": "4/12", "time": "10:00", "name": "富平罐頭市場", "icon": "shopping-cart", "location": "https://naver.me/5X9z6R2p" },
-                        { "id": 303, "date": "4/12", "time": "10:10", "name": "棉被168", "icon": "shopping-cart", "location": "棉被168" },
+                        { "id": 302, "date": "4/12", "time": "08:00", "name": "富平罐頭市場", "icon": "shopping-cart", "location": "https://naver.me/5X9z6R2p" },
+                        { "id": 303, "date": "4/12", "time": "10:00", "name": "國際市場", "icon": "shopping-cart", "location": "https://naver.me/50BH81TU" },
                         { "id": 304, "date": "4/12", "time": "12:00", "name": "山莊1988 西面本店 馬鈴薯店", "icon": "utensils", "location": "https://naver.me/5ulXyugg" },
                         { "id": 305, "date": "4/12", "time": "13:00", "name": "All Sunday 貝果廣安里", "icon": "utensils", "location": "https://naver.me/FriDJCJv" },
                         { "id": 306, "date": "4/12", "time": "20:45", "name": "釜山金海機場", "icon": "map-pin", "location": "PUS", "note": "回程" }
@@ -262,35 +236,22 @@
                 };
 
                 const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || initialData);
-                const dates = [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}];
 
-                // 即時匯率 API
                 const fetchRate = async () => {
                     try {
                         const res = await fetch('https://open.er-api.com/v6/latest/TWD');
                         const data = await res.json();
-                        if (data.rates && data.rates.KRW) {
-                            exchangeRate.value = parseFloat(data.rates.KRW.toFixed(2));
-                        }
-                    } catch (e) {
-                        console.log("匯率更新失敗，使用預設值");
-                    }
+                        if (data.rates && data.rates.KRW) exchangeRate.value = parseFloat(data.rates.KRW.toFixed(2));
+                    } catch (e) { console.error("Rate fail"); }
                 };
 
-                // 計算總花費
                 const totals = computed(() => {
-                    let totalKrw = 0;
-                    let totalTwd = 0;
-                    db.value.cost.forEach(item => {
-                        if (item.currency === 'KRW') {
-                            totalKrw += item.amount;
-                            totalTwd += item.amount / exchangeRate.value;
-                        } else {
-                            totalTwd += item.amount;
-                            totalKrw += item.amount * exchangeRate.value;
-                        }
+                    let krw = 0, twd = 0;
+                    db.value.cost.forEach(i => {
+                        if (i.currency === 'KRW') { krw += i.amount; twd += i.amount / exchangeRate.value; }
+                        else { twd += i.amount; krw += i.amount * exchangeRate.value; }
                     });
-                    return { krw: Math.round(totalKrw), twd: Math.round(totalTwd) };
+                    return { krw: Math.round(krw), twd: Math.round(twd) };
                 });
 
                 const sortedItinerary = computed(() => {
@@ -329,28 +290,23 @@
 
                 const openMap = (loc) => {
                     if(!loc || loc === 'TPE' || loc === 'PUS') return;
-                    window.open(loc.startsWith('http') ? loc : `http://googleusercontent.com/maps.google.com/?q=${encodeURIComponent(loc)}`, '_blank');
+                    window.open(loc.startsWith('http') ? loc : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(loc)}`, '_blank');
                 };
 
                 const exportData = () => {
-                    navigator.clipboard.writeText(JSON.stringify(db.value, null, 2)).then(() => alert('資料已複製'));
+                    navigator.clipboard.writeText(JSON.stringify(db.value, null, 2)).then(() => alert('資料已複製到剪貼簿'));
                 };
 
-                onMounted(() => {
-                    fetchRate();
-                    refreshIcons();
-                });
-
+                onMounted(() => { fetchRate(); refreshIcons(); });
                 watch([currentTab, selectedDate, showModal], () => refreshIcons());
 
                 return { 
-                    currentTab, selectedDate, dates, db, sortedItinerary, showModal, form, 
-                    exportData, openAddModal, openEditModal, handleSave, deleteItem, openMap, 
-                    saveData, exchangeRate, totals, fetchRate 
+                    currentTab, selectedDate, dates: [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}], 
+                    db, sortedItinerary, showModal, form, exportData, openAddModal, openEditModal, handleSave, deleteItem, openMap, saveData,
+                    exchangeRate, totals, fetchRate
                 };
             }
         }).mount('#app');
     </script>
 </body>
 </html>
-
