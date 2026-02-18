@@ -29,7 +29,6 @@
 
         .main-content { margin-top: -60px; border-radius: 40px 40px 0 0; background: #f8fafc; min-height: 80vh; padding: 24px; position: relative; }
         
-        /* 標題縮小且靠右下 */
         .title-group {
             position: absolute;
             bottom: 140px;
@@ -128,12 +127,37 @@
                     </button>
                 </div>
                 
-                <div class="bg-slate-800 p-6 rounded-[2.5rem] text-white shadow-xl">
-                    <p class="text-[10px] text-gray-400 font-bold uppercase mb-4">Quick Flight Check</p>
-                    <div class="flex justify-between items-center text-sm">
-                        <span>4/10 TPE 02:50</span>
-                        <i data-lucide="move-right" class="w-4 h-4 text-blue-400"></i>
-                        <span>PUS 06:10</span>
+                <div class="space-y-3">
+                    <div class="bg-slate-800 p-6 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i data-lucide="plane-takeoff" class="w-12 h-12"></i></div>
+                        <p class="text-[10px] text-blue-400 font-bold uppercase mb-4 tracking-widest">Departure Flight</p>
+                        <div class="flex justify-between items-center">
+                            <div class="text-center">
+                                <p class="text-lg font-black leading-none">TPE</p>
+                                <p class="text-[10px] opacity-50 mt-1">4/10 02:50</p>
+                            </div>
+                            <i data-lucide="move-right" class="w-5 h-5 text-blue-400"></i>
+                            <div class="text-center">
+                                <p class="text-lg font-black leading-none">PUS</p>
+                                <p class="text-[10px] opacity-50 mt-1">4/10 06:10</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 text-gray-50"><i data-lucide="plane-landing" class="w-12 h-12"></i></div>
+                        <p class="text-[10px] text-pink-500 font-bold uppercase mb-4 tracking-widest">Return Flight</p>
+                        <div class="flex justify-between items-center text-gray-800">
+                            <div class="text-center">
+                                <p class="text-lg font-black leading-none">PUS</p>
+                                <p class="text-[10px] text-gray-400 mt-1">4/12 20:45</p>
+                            </div>
+                            <i data-lucide="move-right" class="w-5 h-5 text-pink-500"></i>
+                            <div class="text-center">
+                                <p class="text-lg font-black leading-none">TPE</p>
+                                <p class="text-[10px] text-gray-400 mt-1">Arrival</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -205,7 +229,7 @@
 
         createApp({
             setup() {
-                const DB_KEY = 'busan_vFinal_2025_Full_Sync';
+                const DB_KEY = 'busan_vFinal_2026_Full_Sync';
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('4/10');
                 const showModal = ref(false);
@@ -213,10 +237,9 @@
                 const editingId = ref(null);
                 const form = ref({ name: '', location: '', icon: 'map-pin', time: '', amount: 0, currency: 'KRW', note: '' });
 
-                // 注入你提供的最新 JSON 資料
                 const initialData = {
                     "itinerary": [
-                        { "id": 101, "date": "4/10", "time": "02:50", "name": "桃園機場", "icon": "plane", "location": "TPE" },
+                        { "id": 101, "date": "4/10", "time": "02:50", "name": "桃園機場 (去程)", "icon": "plane", "location": "TPE" },
                         { "id": 102, "date": "4/10", "time": "06:10", "name": "釜山機場", "icon": "map-pin", "location": "PUS" },
                         { "id": 103, "date": "4/10", "time": "09:00", "name": "동삼해수천（影島賞櫻 🌸）", "icon": "sparkles", "location": "https://maps.app.goo.gl/roJYgNsJ1EbKKoLd6?g_st=ic" },
                         { "id": 104, "date": "4/10", "time": "12:00", "name": "螞蟻家辣炒章魚 南浦洞", "icon": "utensils", "location": "https://maps.app.goo.gl/nGTpxmNqcgeQ1ARf9?g_st=ic" },
@@ -228,7 +251,7 @@
                         { "id": 209, "date": "4/11", "time": "18:00", "name": "고하순 烤肉店", "icon": "utensils", "location": "https://naver.me/GSQwnZgY" },
                         { "id": 301, "date": "4/12", "time": "09:00", "name": "本粥 鮑魚粥", "icon": "utensils", "location": "https://naver.me/G0p9FCo0" },
                         { "id": 305, "date": "4/12", "time": "13:00", "name": "All Sunday 貝果廣安里", "icon": "utensils", "location": "https://naver.me/FriDJCJv" },
-                        { "id": 306, "date": "4/12", "time": "20:45", "name": "釜山金海機場", "icon": "map-pin", "location": "PUS", "note": "回程" }
+                        { "id": 306, "date": "4/12", "time": "20:45", "name": "釜山金海機場 (回程)", "icon": "plane", "location": "PUS", "note": "回程班機 PUS ➔ TPE" }
                     ],
                     "shop": [
                         { "id": 501, "name": "北臉 (The North Face)", "done": false },
