@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     
     <style>
@@ -26,6 +27,12 @@
         .tab-btn.active { background-color: #60a5fa; color: white; border-radius: 12px; box-shadow: 0 4px 10px rgba(96, 165, 250, 0.4); }
         .date-item.active { background: #60a5fa; color: white; border-color: #60a5fa; }
         .modal-bg { background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); }
+        
+        /* 拖拉時的視覺效果 */
+        .sortable-ghost { opacity: 0.3; background: #ebf5ff; border: 2px dashed #60a5fa; }
+        .sortable-drag { opacity: 0.9; transform: rotate(2deg); }
+        .plan-card { cursor: grab; transition: transform 0.1s; }
+        .plan-card:active { cursor: grabbing; }
     </style>
 </head>
 <body>
@@ -45,7 +52,7 @@
         </header>
 
         <main class="main-content pb-32">
-            <div v-if="currentTab === 'itinerary'">
+            <div v-show="currentTab === 'itinerary'">
                 <div class="flex overflow-x-auto gap-3 no-scrollbar mb-8">
                     <div v-for="d in dates" :key="d.id" @click="selectedDate = d.id"
                          :class="['date-item flex-shrink-0 w-16 h-20 rounded-3xl border flex flex-col items-center justify-center transition-all cursor-pointer', selectedDate === d.id ? 'active' : 'bg-white border-gray-100 text-gray-400']">
@@ -54,18 +61,22 @@
                     </div>
                 </div>
 
-                <div class="space-y-6">
-                    <div v-for="(item, index) in filteredItinerary" :key="item.id" class="relative group">
-                        <div class="bg-white p-4 rounded-[2rem] border border-gray-50 shadow-sm flex gap-4 items-center">
+                <div id="itinerary-list" class="space-y-6">
+                    <div v-for="item in filteredItinerary" :key="item.id" :data-id="item.id" class="relative group">
+                        <div class="plan-card bg-white p-4 rounded-[2rem] border border-gray-50 shadow-sm flex gap-4 items-center" @click="openEditModal(item)">
                             <div class="p-3 rounded-2xl bg-blue-50 text-blue-400">
                                 <i :data-lucide="item.icon || 'map-pin'"></i>
                             </div>
                             <div class="flex-1">
-                                <div class="flex justify-between">
+                                <div class="flex justify-between items-start">
                                     <h3 class="font-bold text-gray-800">{{ item.name }}</h3>
-                                    <button @click="deleteItem('itinerary', item.id)" class="text-gray-300 hover:text-red-400"><i data-lucide="trash-2" class="w-4"></i></button>
+                                    <button @click.stop="deleteItem('itinerary', item.id)" class="text-gray-300 hover:text-red-400 p-1">
+                                        <i data-lucide="trash-2" class="w-4"></i>
+                                    </button>
                                 </div>
-                                <p class="text-[11px] text-gray-400 mt-0.5" v-if="item.time"><i data-lucide="clock" class="inline w-3 h-3 mr-1"></i>{{ item.time }}</p>
+                                <p class="text-[11px] text-gray-400 mt-0.5" v-if="item.time">
+                                    <i data-lucide="clock" class="inline w-3 h-3 mr-1"></i>{{ item.time }}
+                                </p>
                                 <p class="text-xs text-gray-500 mt-1 italic">{{ item.note }}</p>
                             </div>
                         </div>
@@ -76,85 +87,58 @@
             <div v-if="currentTab === 'info'" class="space-y-6">
                 <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-[2.5rem] text-white">
                     <h3 class="font-bold mb-4 flex items-center gap-2"><i data-lucide="refresh-cw"></i> 匯率即時算</h3>
-                    <input type="number" v-model="krw" class="w-full bg-white/20 p-3 rounded-2xl border border-white/30 text-white font-bold mb-4 focus:outline-none" placeholder="輸入韓元">
-                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center text-blue-600">
-                        <span class="font-bold opacity-60">TWD</span>
-                        <span class="text-2xl font-black">NT$ {{ (krw * 0.024).toFixed(0) }}</span>
+                    <input type="number" v-model="krw" class="w-full bg-white/20 p-3 rounded-2xl border border-white/30 text-white font-bold mb-4 focus:outline-none">
+                    <div class="bg-white p-4 rounded-2xl flex justify-between items-center text-blue-600 font-bold">
+                        <span>TWD</span><span>NT$ {{ (krw * 0.024).toFixed(0) }}</span>
                     </div>
                 </div>
                 <div class="bg-gray-50 p-6 rounded-[2.5rem]">
                     <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="hotel"></i> 住宿飯店</h3>
                     <p class="font-bold text-gray-700">Stanford Inn Busan</p>
-                    <p class="text-sm text-gray-400">南浦洞地鐵站旁，交通便利</p>
                 </div>
             </div>
 
             <div v-if="currentTab === 'shop'" class="space-y-4">
-                <h2 class="font-bold text-xl text-gray-800 mb-4 tracking-tight text-blue-500">Shopping List</h2>
-                <div v-if="shopList.length === 0" class="text-center py-10 text-gray-300 italic text-sm">尚未新增物品</div>
-                <div v-for="(item, index) in shopList" :key="item.id" class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl group">
+                <h2 class="font-bold text-xl text-blue-500 mb-4">Shopping List</h2>
+                <div v-for="item in shopList" :key="item.id" class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl">
                     <input type="checkbox" v-model="item.done" @change="saveData" class="w-5 h-5 rounded-full border-blue-300 text-blue-400">
-                    <div class="flex-1">
-                        <p :class="['font-bold text-gray-700', item.done ? 'line-through opacity-40' : '']">{{ item.name }}</p>
-                        <p class="text-[10px] text-gray-400" v-if="item.note">{{ item.note }}</p>
-                    </div>
-                    <button @click="deleteItem('shop', item.id)" class="text-gray-300 hover:text-red-400"><i data-lucide="x" class="w-4"></i></button>
+                    <div class="flex-1" @click="openEditModal(item)"><p :class="{'line-through opacity-40': item.done}" class="font-bold">{{ item.name }}</p></div>
+                    <button @click="deleteItem('shop', item.id)" class="text-gray-300"><i data-lucide="x" class="w-4"></i></button>
                 </div>
             </div>
 
             <div v-if="currentTab === 'cost'" class="space-y-4">
                 <div class="bg-gray-800 p-6 rounded-[2rem] text-white mb-6">
-                    <p class="text-xs opacity-60 uppercase font-bold tracking-widest text-blue-300">Total Expenses</p>
+                    <p class="text-xs opacity-60 font-bold uppercase tracking-widest">Total Expenses</p>
                     <p class="text-3xl font-black">₩ {{ totalCost.toLocaleString() }}</p>
                 </div>
-                <div v-if="costList.length === 0" class="text-center py-10 text-gray-300 italic text-sm">尚未新增支出</div>
-                <div v-for="(item, index) in costList" :key="item.id" class="flex justify-between items-center p-4 border-b border-gray-50">
-                    <div>
-                        <p class="font-bold text-gray-700">{{ item.name }}</p>
-                        <p class="text-[10px] text-gray-400">{{ item.date }}</p>
-                    </div>
+                <div v-for="item in costList" :key="item.id" @click="openEditModal(item)" class="flex justify-between items-center p-4 border-b">
+                    <div><p class="font-bold text-gray-700">{{ item.name }}</p></div>
                     <div class="flex items-center gap-3">
                         <span class="font-black text-blue-500">₩ {{ parseInt(item.amount).toLocaleString() }}</span>
-                        <button @click="deleteItem('cost', item.id)" class="text-gray-200 hover:text-red-400"><i data-lucide="trash-2" class="w-4"></i></button>
+                        <button @click.stop="deleteItem('cost', item.id)" class="text-gray-200"><i data-lucide="trash-2" class="w-4"></i></button>
                     </div>
                 </div>
             </div>
         </main>
 
-        <button v-if="currentTab !== 'info'" @click="showModal = true" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-400 text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all z-40">
+        <button v-if="currentTab !== 'info'" @click="openAddModal" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-400 text-white rounded-full shadow-2xl flex items-center justify-center active:scale-90 transition-all z-40">
             <i data-lucide="plus" class="w-8 h-8"></i>
         </button>
 
         <div v-if="showModal" class="fixed inset-0 z-50 modal-bg flex items-end justify-center">
             <div class="bg-white w-full max-w-md rounded-t-[3rem] p-8 animate-in slide-in-from-bottom duration-300">
                 <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800 text-blue-500">Add to {{ currentTab.toUpperCase() }}</h3>
-                    <button @click="showModal = false" class="p-2 bg-gray-100 rounded-full text-gray-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                    <h3 class="text-xl font-bold text-blue-500">{{ isEditing ? '編輯項目' : '新增項目' }}</h3>
+                    <button @click="showModal = false" class="p-2 text-gray-400"><i data-lucide="x" class="w-5 h-5"></i></button>
                 </div>
-                
                 <div class="space-y-5">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Item Name</label>
-                        <input v-model="form.name" type="text" class="w-full border-b border-gray-200 py-2 focus:border-blue-300 outline-none font-bold" placeholder="例如：海雲台烤肉">
-                    </div>
-                    
-                    <div v-if="currentTab === 'itinerary'">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Time</label>
-                        <input v-model="form.time" type="text" class="w-full border-b border-gray-200 py-2 focus:border-blue-300 outline-none" placeholder="例如：12:30">
-                    </div>
-
-                    <div v-if="currentTab === 'cost'">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Amount (KRW)</label>
-                        <input v-model="form.amount" type="number" class="w-full border-b border-gray-200 py-2 focus:border-blue-300 outline-none font-black text-blue-500" placeholder="0">
-                    </div>
-
-                    <div v-if="currentTab === 'itinerary' || currentTab === 'shop'">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase">Note</label>
-                        <input v-model="form.note" type="text" class="w-full border-b border-gray-200 py-2 focus:border-blue-300 outline-none text-gray-500">
-                    </div>
+                    <div><label class="text-[10px] text-gray-400 font-bold">名稱</label><input v-model="form.name" type="text" class="w-full border-b py-2 focus:border-blue-300 outline-none font-bold"></div>
+                    <div v-if="currentTab === 'itinerary'"><label class="text-[10px] text-gray-400 font-bold">時間</label><input v-model="form.time" type="text" class="w-full border-b py-2 focus:border-blue-300 outline-none"></div>
+                    <div v-if="currentTab === 'cost'"><label class="text-[10px] text-gray-400 font-bold">金額 (KRW)</label><input v-model="form.amount" type="number" class="w-full border-b py-2 focus:border-blue-300 outline-none font-black text-blue-500"></div>
+                    <div><label class="text-[10px] text-gray-400 font-bold">備註</label><input v-model="form.note" type="text" class="w-full border-b py-2 focus:border-blue-300 outline-none text-gray-500"></div>
                 </div>
-
-                <button @click="handleSave" class="w-full bg-blue-400 text-white py-4 rounded-2xl mt-8 font-bold shadow-lg shadow-blue-100">儲存新增</button>
+                <button @click="handleSave" class="w-full bg-blue-400 text-white py-4 rounded-2xl mt-8 font-bold shadow-lg">{{ isEditing ? '更新儲存' : '儲存新增' }}</button>
             </div>
         </div>
     </div>
@@ -167,89 +151,100 @@
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('4/10');
                 const showModal = ref(false);
+                const isEditing = ref(false);
+                const editingId = ref(null);
                 const krw = ref(10000);
 
-                // 預載行程資料
                 const defaultItinerary = [
-                    // Day 1: 4/10
                     { id: 1, date: '4/10', name: '桃園機場', icon: 'plane', time: '02:50', note: '釜山航空 7C6154' },
                     { id: 2, date: '4/10', name: '金海機場', icon: 'map-pin', time: '06:10', note: '抵達釜山' },
-                    { id: 3, date: '4/10', name: '影島櫻花', icon: 'flower', time: '10:00', note: '春季限定賞櫻' },
-                    { id: 4, date: '4/10', name: 'Olive Young (OY)', icon: 'shopping-bag', time: '13:00', note: '美妝補貨' },
-                    { id: 5, date: '4/10', name: '南浦洞逛街', icon: 'shopping-basket', time: '15:00', note: '飯店 Check-in 兼逛街' },
-                    { id: 6, date: '4/10', name: '樂天超市', icon: 'shopping-cart', time: '19:00', note: '採買零食伴手禮' },
-                    // Day 2: 4/11
-                    { id: 7, date: '4/11', name: '海雲台', icon: 'palmtree', time: '10:00', note: '海邊漫步' },
-                    { id: 8, date: '4/11', name: '新世界百貨', icon: 'shopping-bag', time: '13:00', note: '免稅店逛逛' },
-                    { id: 9, date: '4/11', name: '藍瓶咖啡 Blue Bottle', icon: 'coffee', time: '15:30', note: '下午茶休息' },
-                    { id: 10, date: '4/11', name: '西面商圈', icon: 'map', time: '18:00', note: '釜山明洞吃晚餐' },
-                    // Day 3: 4/12
-                    { id: 11, date: '4/12', name: '傳統市場', icon: 'utensils', time: '09:00', note: '吃早餐體驗當地氛圍' },
-                    { id: 12, date: '4/12', name: '廣安里海灘', icon: 'waves', time: '13:00', note: '看廣安大橋' },
-                    { id: 13, date: '4/12', name: '金海機場', icon: 'plane', time: '20:45', note: '回程 IT607' }
+                    { id: 3, date: '4/10', name: '影島櫻花', icon: 'flower', time: '10:00', note: '春季賞櫻' },
+                    { id: 4, date: '4/11', name: '海雲台', icon: 'palmtree', time: '10:00', note: '海邊漫步' },
+                    { id: 5, date: '4/12', name: '傳統市場', icon: 'utensils', time: '09:00', note: '當地早餐' }
                 ];
 
-                const itineraryData = ref(JSON.parse(localStorage.getItem('itinerary_v2')) || defaultItinerary);
-                const shopList = ref(JSON.parse(localStorage.getItem('shop_v2')) || []);
-                const costList = ref(JSON.parse(localStorage.getItem('cost_v2')) || []);
-
-                const dates = [
-                    { id: '4/10', week: 'Fri', day: '10' },
-                    { id: '4/11', week: 'Sat', day: '11' },
-                    { id: '4/12', week: 'Sun', day: '12' }
-                ];
-
+                const itineraryData = ref(JSON.parse(localStorage.getItem('itinerary_v4')) || defaultItinerary);
+                const shopList = ref(JSON.parse(localStorage.getItem('shop_v4')) || []);
+                const costList = ref(JSON.parse(localStorage.getItem('cost_v4')) || []);
+                const dates = [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}];
                 const form = ref({ name: '', time: '', note: '', amount: 0 });
 
                 const filteredItinerary = computed(() => {
-                    return itineraryData.value
-                        .filter(item => item.date === selectedDate.value)
-                        .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                    return itineraryData.value.filter(i => i.date === selectedDate.value);
                 });
 
-                const totalCost = computed(() => {
-                    return costList.value.reduce((sum, item) => sum + parseInt(item.amount || 0), 0);
-                });
+                const totalCost = computed(() => costList.value.reduce((s, i) => s + parseInt(i.amount || 0), 0));
 
-                const saveData = () => {
-                    localStorage.setItem('itinerary_v2', JSON.stringify(itineraryData.value));
-                    localStorage.setItem('shop_v2', JSON.stringify(shopList.value));
-                    localStorage.setItem('cost_v2', JSON.stringify(costList.value));
+                const initSortable = () => {
+                    const el = document.getElementById('itinerary-list');
+                    if (!el) return;
+                    Sortable.create(el, {
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        dragClass: 'sortable-drag',
+                        onEnd: (evt) => {
+                            const currentDayIds = filteredItinerary.value.map(item => item.id);
+                            const [movedId] = currentDayIds.splice(evt.oldIndex, 1);
+                            currentDayIds.splice(evt.newIndex, 0, movedId);
+                            
+                            // 更新整個 itineraryData 的順序
+                            const otherDaysData = itineraryData.value.filter(i => i.date !== selectedDate.value);
+                            const updatedDayData = currentDayIds.map(id => itineraryData.value.find(i => i.id === id));
+                            
+                            itineraryData.value = [...otherDaysData, ...updatedDayData];
+                            saveData();
+                        }
+                    });
                 };
 
                 const handleSave = () => {
                     if(!form.value.name) return;
-                    const newItem = { 
-                        ...form.value, 
-                        id: Date.now(), 
-                        date: selectedDate.value,
-                        icon: currentTab.value === 'itinerary' ? 'map-pin' : ''
-                    };
-                    if(currentTab.value === 'itinerary') itineraryData.value.push(newItem);
-                    if(currentTab.value === 'shop') shopList.value.push({ ...newItem, done: false });
-                    if(currentTab.value === 'cost') costList.value.push(newItem);
+                    if (isEditing.value) {
+                        const list = currentTab.value === 'itinerary' ? itineraryData : (currentTab.value === 'shop' ? shopList : costList);
+                        const idx = list.value.findIndex(i => i.id === editingId.value);
+                        if (idx !== -1) list.value[idx] = { ...form.value };
+                    } else {
+                        const newItem = { ...form.value, id: Date.now(), date: selectedDate.value };
+                        if (currentTab.value === 'itinerary') itineraryData.value.push({ ...newItem, icon: 'map-pin' });
+                        if (currentTab.value === 'shop') shopList.value.push({ ...newItem, done: false });
+                        if (currentTab.value === 'cost') costList.value.push(newItem);
+                    }
                     saveData();
                     showModal.value = false;
-                    form.value = { name: '', time: '', note: '', amount: 0 };
+                };
+
+                const deleteItem = (type, id) => {
+                    if (confirm('確定要刪除嗎？')) {
+                        if (type === 'itinerary') itineraryData.value = itineraryData.value.filter(i => i.id !== id);
+                        if (type === 'shop') shopList.value = shopList.value.filter(i => i.id !== id);
+                        if (type === 'cost') costList.value = costList.value.filter(i => i.id !== id);
+                        saveData();
+                    }
+                };
+
+                const saveData = () => {
+                    localStorage.setItem('itinerary_v4', JSON.stringify(itineraryData.value));
+                    localStorage.setItem('shop_v4', JSON.stringify(shopList.value));
+                    localStorage.setItem('cost_v4', JSON.stringify(costList.value));
                     nextTick(() => lucide.createIcons());
                 };
 
-                const deleteItem = (type, targetId) => {
-                    if(type === 'itinerary') itineraryData.value = itineraryData.value.filter(i => i.id !== targetId);
-                    if(type === 'shop') shopList.value = shopList.value.filter(i => i.id !== targetId);
-                    if(type === 'cost') costList.value = costList.value.filter(i => i.id !== targetId);
-                    saveData();
-                    nextTick(() => lucide.createIcons());
-                };
+                const openAddModal = () => { isEditing.value = false; form.value = {name:'',time:'',note:'',amount:0}; showModal.value = true; };
+                const openEditModal = (item) => { isEditing.value = true; editingId.value = item.id; form.value = {...item}; showModal.value = true; };
 
-                onMounted(() => lucide.createIcons());
-                watch([currentTab, showModal, selectedDate], () => nextTick(() => lucide.createIcons()));
+                onMounted(() => {
+                    lucide.createIcons();
+                    initSortable();
+                });
 
-                return { 
-                    currentTab, selectedDate, dates, filteredItinerary, krw, 
-                    shopList, costList, totalCost, showModal, form, 
-                    handleSave, deleteItem, saveData 
-                };
+                watch([currentTab, selectedDate], () => {
+                    nextTick(() => {
+                        lucide.createIcons();
+                        if (currentTab.value === 'itinerary') initSortable();
+                    });
+                });
+
+                return { currentTab, selectedDate, dates, filteredItinerary, krw, shopList, costList, totalCost, showModal, isEditing, form, openAddModal, openEditModal, handleSave, deleteItem, saveData };
             }
         }).mount('#app');
     </script>
