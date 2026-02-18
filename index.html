@@ -15,7 +15,7 @@
         
         .header-banner {
             width: 100%; height: 320px;
-            background-image: url('image_ac77bf.jpg');
+            background-image: url('https://images.unsplash.com/photo-1546036157-1913988f6158?q=80&w=2070&auto=format&fit=crop');
             background-size: cover; background-position: center; position: relative;
         }
         .header-overlay {
@@ -83,7 +83,7 @@
                             <div class="flex justify-between items-start">
                                 <div>
                                     <span v-if="item.time" class="time-tag mb-1 inline-block">{{ item.time }}</span>
-                                    <h3 class="font-bold text-gray-800 text-sm">{{ item.name }}</h3>
+                                    <h3 class="font-bold text-gray-800 text-sm leading-tight">{{ item.name }}</h3>
                                 </div>
                                 <div class="flex gap-1">
                                     <button v-if="item.location" @click.stop="openMap(item.location)" class="text-blue-500 bg-blue-50 p-2 rounded-full"><i data-lucide="map" class="w-4 h-4"></i></button>
@@ -97,9 +97,6 @@
 
             <div v-if="currentTab === 'info'" class="space-y-6">
                 <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-5 text-blue-600">
-                        <i data-lucide="hotel" class="w-20 h-20"></i>
-                    </div>
                     <h3 class="font-bold text-orange-500 flex items-center gap-2 mb-4">
                         <i data-lucide="bed-double" class="w-5 h-5"></i> 住宿資訊
                     </h3>
@@ -108,8 +105,8 @@
                         <p class="text-xs text-gray-400 mb-6 flex items-center gap-1">
                             <i data-lucide="map-pin" class="w-3 h-3"></i> Nampo-dong, Busan
                         </p>
-                        <button @click="openMap('https://www.booking.com/searchresults.zh-tw.html?aid=311984&label=stanford-inn-busan-Hry5NyVwjemp92Ahpd1jewS393162425195%3Apl%3Ata%3Ap1%3Ap2%3Aac%3Aap%3Aneg%3Afi%3Atikwd-372147301328%3Alp9198563%3Ali%3Adec%3Adm%3Appccp%3DUmFuZG9tSVYkc2RlIyh9YbSsBl3MCvHsD8UKUHIRFxY&gclid=Cj0KCQiA49XMBhDRARIsAOOKJHaiKQtT4xtG6JnfT2B5txe135G2V8qekaQMSfbIrmkFLKNGMYxm9IAaAhkdEALw_wcB&highlighted_hotels=2353703&redirected=1&city=-713900&hlrd=no_dates&source=hotel&expand_sb=1&keep_landing=1&sid=5acae30542bd5b7dd8dbaa69900b7490')" 
-                                class="w-full bg-blue-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-100 active:scale-95 transition-all">
+                        <button @click="openMap('https://www.booking.com/hotel/kr/stanford-inn-busan.en.html')" 
+                                class="w-full bg-blue-500 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-blue-100">
                             <i data-lucide="external-link" class="w-4 h-4"></i> 查看訂房詳情
                         </button>
                     </div>
@@ -122,14 +119,14 @@
                     <div class="space-y-3">
                         <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl">
                             <div>
-                                <p class="text-[10px] font-bold text-gray-400">4/10 去程</p>
+                                <p class="text-[10px] font-bold text-gray-400">去程 (TPE-PUS)</p>
                                 <p class="font-bold text-gray-700">02:50 - 06:10</p>
                             </div>
                             <i data-lucide="plane-takeoff" class="w-4 h-4 text-blue-300"></i>
                         </div>
                         <div class="flex justify-between items-center p-3 bg-slate-50 rounded-2xl">
                             <div>
-                                <p class="text-[10px] font-bold text-gray-400">4/12 回程</p>
+                                <p class="text-[10px] font-bold text-gray-400">回程 (PUS-TPE)</p>
                                 <p class="font-bold text-gray-700">20:45 - 22:10</p>
                             </div>
                             <i data-lucide="plane-landing" class="w-4 h-4 text-blue-300"></i>
@@ -139,7 +136,7 @@
             </div>
 
             <div v-if="currentTab === 'shop'" class="space-y-4">
-                <h2 class="font-black text-2xl mb-4 text-gray-800">Shopping</h2>
+                <h2 class="font-black text-2xl mb-4 text-gray-800">Shopping List</h2>
                 <div v-for="item in db.shop" :key="item.id" class="flex items-center gap-3 bg-white p-4 rounded-2xl border border-gray-100">
                     <input type="checkbox" v-model="item.done" @change="saveData" class="w-6 h-6 rounded-full text-blue-500">
                     <p :class="{'line-through opacity-30': item.done}" class="flex-1 font-bold text-gray-700">{{ item.name }}</p>
@@ -167,7 +164,7 @@
                 <div v-for="item in db.cost" :key="item.id" @click="openEditModal(item)" class="flex justify-between items-center p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
                     <div class="flex-1">
                         <p class="font-bold text-gray-700">{{ item.name }}</p>
-                        <p class="text-[10px] text-gray-400 uppercase">{{ item.currency === 'KRW' ? '韓幣' : '台幣' }}</p>
+                        <p class="text-[10px] text-gray-400 uppercase">{{ item.currency === 'KRW' ? '韓幣支付' : '台幣支付' }}</p>
                     </div>
                     <div class="text-right flex items-center gap-3">
                         <div>
@@ -258,13 +255,52 @@
                 const exchangeRate = ref(40); 
 
                 const iconPool = ['map-pin', 'flower', 'utensils', 'coffee', 'shopping-bag', 'shopping-cart', 'camera', 'bus', 'beer', 'hotel', 'plane', 'sparkles'];
-                const DB_KEY = 'busan_vFinal_Full_StayInfo';
+                const DB_KEY = 'busan_vFinal_2025_Full_Sync';
 
-                const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || {
-                    itinerary: [{ id: 1, date: '4/10', time: '09:30', name: '影島賞櫻', icon: 'flower', location: 'Yeongdo-gu', note: '' }],
-                    shop: [{ id: 201, name: '北臉 (The North Face)', done: false }],
-                    cost: [{ id: 301, name: '預約接機', amount: 1200, currency: 'TWD', note: '' }]
-                });
+                // 根據截圖整合的初始數據
+                const initialData = {
+                    itinerary: [
+                        // 4/10 (五)
+                        { id: 101, date: '4/10', time: '02:50', name: '桃園機場', icon: 'plane', location: 'TPE', note: '' },
+                        { id: 102, date: '4/10', time: '06:10', name: '釜山機場', icon: 'map-pin', location: 'PUS', note: '' },
+                        { id: 103, date: '4/10', time: '09:00', name: '影島賞櫻 (東三海水川)', icon: 'sparkles', location: '影島', note: '' },
+                        { id: 104, date: '4/10', time: '12:00', name: '螞蟻家辣炒章魚 南浦洞', icon: 'utensils', location: '개미집 광복직영점', note: '' },
+                        { id: 105, date: '4/10', time: '13:00', name: 'Olive Young', icon: 'shopping-cart', location: 'Olive Young', note: '' },
+                        { id: 106, date: '4/10', time: '14:00', name: '國際藥局 (Gukje Pharmacy)', icon: 'shopping-cart', location: '국제약국', note: '' },
+                        { id: 107, date: '4/10', time: '', name: '南浦洞逛街', icon: 'shopping-bag', location: '南浦洞', note: '' },
+                        // 4/11 (六)
+                        { id: 201, date: '4/11', time: '11:00', name: '海雲台 Busan butter sand', icon: 'shopping-cart', location: '海雲台', note: '' },
+                        { id: 202, date: '4/11', time: '11:10', name: 'Delight project 貝果店', icon: 'map-pin', location: 'Delight project', note: '' },
+                        { id: 203, date: '4/11', time: '11:30', name: '海雲台名品糖餅', icon: 'utensils', location: '해운대명품호떡', note: '' },
+                        { id: 204, date: '4/11', time: '12:00', name: 'Keveren House 瑪費蛋糕', icon: 'coffee', location: 'Keveren House', note: '' },
+                        { id: 205, date: '4/11', time: '', name: '水邊最高豬肉湯飯', icon: 'utensils', location: '수변최고돼지국밥', note: '' },
+                        { id: 206, date: '4/11', time: '', name: '新世界百貨 賽騰城店', icon: 'hotel', location: '신세계백화점 센텀시티점', note: '' },
+                        { id: 207, date: '4/11', time: '', name: '藍瓶咖啡 釜山民樂店', icon: 'coffee', location: '블루보틀 부산민락', note: '' },
+                        { id: 208, date: '4/11', time: '', name: '西面逛街', icon: 'shopping-cart', location: '西面', note: '' },
+                        { id: 209, date: '4/11', time: '', name: '고하순 烤肉店', icon: 'map-pin', location: '고하순', note: '' },
+                        { id: 210, date: '4/11', time: '', name: '麵包店', icon: 'map-pin', location: '麵包店', note: '' },
+                        // 4/12 (日)
+                        { id: 301, date: '4/12', time: '09:00', name: '本粥 南浦洞店 鮑魚粥', icon: 'utensils', location: '본죽 남포동점', note: '' },
+                        { id: 302, date: '4/12', time: '10:00', name: '富平罐頭市場', icon: 'shopping-cart', location: '부평깡통시장', note: '' },
+                        { id: 303, date: '4/12', time: '10:10', name: '棉被168', icon: 'shopping-cart', location: '棉被168', note: '' },
+                        { id: 304, date: '4/12', time: '12:00', name: '山莊1988 西面本店 馬鈴薯店', icon: 'utensils', location: '산장1988', note: '' },
+                        { id: 305, date: '4/12', time: '13:00', name: 'All Sunday 貝果廣安里', icon: 'map-pin', location: 'All Sunday', note: '' },
+                        { id: 306, date: '4/12', time: '20:45', name: '釜山金海機場', icon: 'map-pin', location: 'PUS', note: '回程' }
+                    ],
+                    shop: [
+                        { id: 501, name: '北臉 (The North Face)', done: false },
+                        { id: 502, name: 'Busan butter sand', done: false },
+                        { id: 503, name: '蜂蜜人蔘片', done: false },
+                        { id: 504, name: '阿珠媽背心', done: false },
+                        { id: 505, name: 'Loe 香水', done: false },
+                        { id: 506, name: 'Object 矮袋鼠', done: false },
+                        { id: 507, name: '樂天超市', done: false },
+                        { id: 508, name: '二代名果', done: false }
+                    ],
+                    cost: []
+                };
+
+                const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || initialData);
 
                 const dates = [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}];
 
