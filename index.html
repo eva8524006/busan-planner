@@ -55,7 +55,7 @@
                 </div>
 
                 <div class="space-y-6">
-                    <div v-for="(item, index) in filteredItinerary" :key="index" class="relative group">
+                    <div v-for="(item, index) in filteredItinerary" :key="item.id" class="relative group">
                         <div class="bg-white p-4 rounded-[2rem] border border-gray-50 shadow-sm flex gap-4 items-center">
                             <div class="p-3 rounded-2xl bg-pink-50 text-pink-400">
                                 <i :data-lucide="item.icon || 'map-pin'"></i>
@@ -82,16 +82,23 @@
                         <span class="text-2xl font-black">NT$ {{ (krw * 0.024).toFixed(0) }}</span>
                     </div>
                 </div>
+                <div class="bg-gray-50 p-6 rounded-[2.5rem]">
+                    <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="hotel"></i> 住宿飯店</h3>
+                    <p class="font-bold text-gray-700">Stanford Inn Busan</p>
+                    <p class="text-sm text-gray-400">南浦洞地鐵站旁，交通便利</p>
+                </div>
             </div>
 
             <div v-if="currentTab === 'shop'" class="space-y-4">
-                <h2 class="font-bold text-xl text-gray-800 mb-4">Shopping List</h2>
-                <div v-for="(item, index) in shopList" :key="index" class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl group">
+                <h2 class="font-bold text-xl text-gray-800 mb-4 tracking-tight">Shopping List</h2>
+                <div v-if="shopList.length === 0" class="text-center py-10 text-gray-300 italic text-sm">尚未新增物品</div>
+                <div v-for="(item, index) in shopList" :key="item.id" class="flex items-center gap-3 bg-gray-50 p-4 rounded-2xl group">
                     <input type="checkbox" v-model="item.done" @change="saveData" class="w-5 h-5 rounded-full border-pink-300 text-pink-400">
                     <div class="flex-1">
                         <p :class="['font-bold text-gray-700', item.done ? 'line-through opacity-40' : '']">{{ item.name }}</p>
+                        <p class="text-[10px] text-gray-400" v-if="item.note">{{ item.note }}</p>
                     </div>
-                    <button @click="deleteItem('shop', index)" class="text-gray-300"><i data-lucide="x" class="w-4"></i></button>
+                    <button @click="deleteItem('shop', item.id)" class="text-gray-300 hover:text-red-400"><i data-lucide="x" class="w-4"></i></button>
                 </div>
             </div>
 
@@ -100,14 +107,15 @@
                     <p class="text-xs opacity-60 uppercase font-bold tracking-widest">Total Expenses</p>
                     <p class="text-3xl font-black">₩ {{ totalCost.toLocaleString() }}</p>
                 </div>
-                <div v-for="(item, index) in costList" :key="index" class="flex justify-between items-center p-4 border-b border-gray-50">
+                <div v-if="costList.length === 0" class="text-center py-10 text-gray-300 italic text-sm">尚未新增支出</div>
+                <div v-for="(item, index) in costList" :key="item.id" class="flex justify-between items-center p-4 border-b border-gray-50">
                     <div>
                         <p class="font-bold text-gray-700">{{ item.name }}</p>
                         <p class="text-[10px] text-gray-400">{{ item.date }}</p>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="font-black text-pink-500">₩ {{ parseInt(item.amount).toLocaleString() }}</span>
-                        <button @click="deleteItem('cost', index)" class="text-gray-200"><i data-lucide="trash-2" class="w-4"></i></button>
+                        <button @click="deleteItem('cost', item.id)" class="text-gray-200 hover:text-red-400"><i data-lucide="trash-2" class="w-4"></i></button>
                     </div>
                 </div>
             </div>
@@ -127,12 +135,12 @@
                 <div class="space-y-5">
                     <div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase">Item Name</label>
-                        <input v-model="form.name" type="text" class="w-full border-b border-gray-200 py-2 focus:border-pink-300 outline-none font-bold" placeholder="e.g. 燒肉午餐">
+                        <input v-model="form.name" type="text" class="w-full border-b border-gray-200 py-2 focus:border-pink-300 outline-none font-bold" placeholder="例如：海雲台烤肉">
                     </div>
                     
                     <div v-if="currentTab === 'itinerary'">
                         <label class="text-[10px] font-bold text-gray-400 uppercase">Time</label>
-                        <input v-model="form.time" type="text" class="w-full border-b border-gray-200 py-2 focus:border-pink-300 outline-none" placeholder="e.g. 12:00">
+                        <input v-model="form.time" type="text" class="w-full border-b border-gray-200 py-2 focus:border-pink-300 outline-none" placeholder="例如：12:30">
                     </div>
 
                     <div v-if="currentTab === 'cost'">
@@ -146,7 +154,7 @@
                     </div>
                 </div>
 
-                <button @click="handleSave" class="w-full bg-pink-400 text-white py-4 rounded-2xl mt-8 font-bold shadow-lg shadow-pink-100">Confirm Add</button>
+                <button @click="handleSave" class="w-full bg-pink-400 text-white py-4 rounded-2xl mt-8 font-bold shadow-lg shadow-pink-100">儲存新增</button>
             </div>
         </div>
     </div>
@@ -161,10 +169,19 @@
                 const showModal = ref(false);
                 const krw = ref(10000);
 
-                // 資料從 LocalStorage 讀取
-                const itineraryData = ref(JSON.parse(localStorage.getItem('itinerary_v1')) || [
-                    { id: Date.now(), date: '4/10', name: '桃園機場', category: '航班', icon: 'plane', time: '02:50', note: '釜山航空 7C6154' }
-                ]);
+                // 原始行程資料 (預設資料)
+                const defaultItinerary = [
+                    // 4/10
+                    { id: 1, date: '4/10', name: '桃園機場', icon: 'plane', time: '02:50', note: '釜山航空 7C6154' },
+                    { id: 2, date: '4/10', name: '金海機場', icon: 'map-pin', time: '06:10', note: '抵達釜山' },
+                    { id: 3, date: '4/10', name: 'Stanford Inn Busan', icon: 'hotel', time: '15:00', note: '飯店 Check-in' },
+                    // 4/11
+                    { id: 4, date: '4/11', name: '甘川洞文化村', icon: 'camera', time: '10:00', note: '穿韓服拍照' },
+                    // 4/12
+                    { id: 5, date: '4/12', name: '金海機場', icon: 'plane', time: '20:45', note: '回程 IT607' }
+                ];
+
+                const itineraryData = ref(JSON.parse(localStorage.getItem('itinerary_v1')) || defaultItinerary);
                 const shopList = ref(JSON.parse(localStorage.getItem('shop_v1')) || []);
                 const costList = ref(JSON.parse(localStorage.getItem('cost_v1')) || []);
 
@@ -177,7 +194,9 @@
                 const form = ref({ name: '', time: '', note: '', amount: 0 });
 
                 const filteredItinerary = computed(() => {
-                    return itineraryData.value.filter(item => item.date === selectedDate.value);
+                    return itineraryData.value
+                        .filter(item => item.date === selectedDate.value)
+                        .sort((a, b) => (a.time || '').localeCompare(b.time || ''));
                 });
 
                 const totalCost = computed(() => {
@@ -193,7 +212,12 @@
                 const handleSave = () => {
                     if(!form.value.name) return;
                     
-                    const newItem = { ...form.value, id: Date.now(), date: selectedDate.value };
+                    const newItem = { 
+                        ...form.value, 
+                        id: Date.now(), 
+                        date: selectedDate.value,
+                        icon: currentTab.value === 'itinerary' ? 'map-pin' : ''
+                    };
 
                     if(currentTab.value === 'itinerary') itineraryData.value.push(newItem);
                     if(currentTab.value === 'shop') shopList.value.push({ ...newItem, done: false });
@@ -205,10 +229,10 @@
                     nextTick(() => lucide.createIcons());
                 };
 
-                const deleteItem = (type, target) => {
-                    if(type === 'itinerary') itineraryData.value = itineraryData.value.filter(i => i.id !== target);
-                    if(type === 'shop') shopList.value.splice(target, 1);
-                    if(type === 'cost') costList.value.splice(target, 1);
+                const deleteItem = (type, targetId) => {
+                    if(type === 'itinerary') itineraryData.value = itineraryData.value.filter(i => i.id !== targetId);
+                    if(type === 'shop') shopList.value = shopList.value.filter(i => i.id !== targetId);
+                    if(type === 'cost') costList.value = costList.value.filter(i => i.id !== targetId);
                     saveData();
                     nextTick(() => lucide.createIcons());
                 };
