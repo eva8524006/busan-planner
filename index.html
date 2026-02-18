@@ -3,40 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Busan Trip 2025 - Final Sync</title>
+    <title>Busan Trip</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #fff9fb; margin: 0; padding: 0; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .header-banner { width: 100%; height: 320px; background-image: url('https://images.unsplash.com/photo-1546036157-1913988f6158?q=80&w=2070&auto=format&fit=crop'); background-size: cover; background-position: center; position: relative; }
-        .header-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.4) 100%); }
-        .main-content { margin-top: -30px; border-radius: 40px 40px 0 0; background: #f8fafc; min-height: 80vh; padding: 24px; position: relative; box-shadow: 0 -10px 25px rgba(0,0,0,0.1); }
-        .nav-container { position: absolute; bottom: 12px; right: 16px; display: flex; gap: 8px; background: rgba(255,255,255,0.92); backdrop-filter: blur(10px); padding: 6px; border-radius: 22px; z-index: 30; }
-        .tab-btn { transition: all 0.3s; display: flex; align-items: center; justify-content: center; width: 42px; height: 42px; border-radius: 14px; }
-        .tab-btn.active { background-color: #3b82f6; color: white; }
-        .date-item.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        
+        /* 恢復原本的 Banner 照片 */
+        .header-banner { 
+            width: 100%; 
+            height: 380px; 
+            background-image: url('https://raw.githubusercontent.com/eva8524006/eva8524006.github.io/main/banner.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            position: relative; 
+        }
+
+        .main-content { 
+            margin-top: -40px; 
+            border-radius: 40px 40px 0 0; 
+            background: #fffefe; 
+            min-height: 80vh; 
+            padding: 24px; 
+            position: relative; 
+            box-shadow: 0 -15px 30px rgba(255, 182, 193, 0.2); 
+        }
+
+        /* 導航欄顏色調整為溫柔的粉藍色調 */
+        .nav-container { 
+            position: absolute; 
+            bottom: 20px; 
+            right: 20px; 
+            display: flex; 
+            gap: 10px; 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(8px); 
+            padding: 8px; 
+            border-radius: 25px; 
+            z-index: 30;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn { transition: all 0.3s; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 15px; }
+        .tab-btn.active { background-color: #7abaff; color: white; }
+        .date-item.active { background: #7abaff; color: white; border-color: #7abaff; }
+        
+        /* 卡片設計優化 */
+        .trip-card {
+            background: white;
+            border: 1px solid #fdf2f5;
+            box-shadow: 0 4px 12px rgba(255, 192, 203, 0.1);
+        }
+        
+        .time-tag { background: #eef7ff; color: #5a96d4; padding: 2px 8px; border-radius: 8px; font-weight: 700; font-size: 11px; }
     </style>
 </head>
 <body>
     <div id="app" class="max-w-md mx-auto relative min-h-screen">
         
         <div class="fixed top-4 left-4 z-50">
-            <button @click="exportData" class="bg-black/80 text-white text-[10px] px-4 py-2 rounded-full backdrop-blur-md flex items-center gap-2 border border-white/20">
-                <i data-lucide="share-2" class="w-3 h-3"></i> 複製最新資料給AI更新
+            <button @click="exportData" class="bg-white/70 text-gray-600 text-[10px] px-3 py-2 rounded-full backdrop-blur-md flex items-center gap-2 border border-pink-100 shadow-sm">
+                <i data-lucide="share-2" class="w-3 h-3 text-pink-400"></i> 備份數據
             </button>
         </div>
 
         <header class="header-banner">
-            <div class="header-overlay"></div>
-            <div class="absolute bottom-[85px] right-6 z-10 text-right">
-                <h1 class="text-4xl font-black text-yellow-400 uppercase tracking-tighter">Busan trip</h1>
-                <p class="text-[10px] font-bold text-white tracking-[0.3em] mt-1 opacity-90">2025 SPRING TRAVEL</p>
-            </div>
-            
             <div class="nav-container">
                 <button @click="currentTab = 'itinerary'" :class="['tab-btn', currentTab==='itinerary'?'active':'text-gray-400']"><i data-lucide="map-pin"></i></button>
                 <button @click="currentTab = 'info'" :class="['tab-btn', currentTab==='info'?'active':'text-gray-400']"><i data-lucide="info"></i></button>
@@ -48,23 +83,23 @@
         <main class="main-content pb-32">
             <div v-show="currentTab === 'itinerary'">
                 <div class="flex overflow-x-auto gap-3 no-scrollbar mb-6 py-2">
-                    <div v-for="d in dates" :key="d.id" @click="selectedDate = d.id" :class="['date-item flex-shrink-0 w-16 h-20 rounded-3xl border flex flex-col items-center justify-center cursor-pointer shadow-sm transition-all', selectedDate === d.id ? 'active' : 'bg-white text-gray-400 border-gray-100']">
+                    <div v-for="d in dates" :key="d.id" @click="selectedDate = d.id" :class="['date-item flex-shrink-0 w-16 h-20 rounded-3xl border flex flex-col items-center justify-center cursor-pointer shadow-sm transition-all', selectedDate === d.id ? 'active' : 'bg-white text-gray-300 border-gray-50']">
                         <span class="text-[10px] font-bold uppercase mb-1">{{ d.week }}</span>
                         <span class="text-xl font-bold font-mono">{{ d.day }}</span>
                     </div>
                 </div>
+                
                 <div class="space-y-4">
-                    <div v-for="item in sortedItinerary" :key="item.id" class="bg-white p-4 rounded-[1.8rem] border border-gray-100 shadow-sm flex gap-4 items-center">
-                        <div class="p-3 rounded-2xl bg-blue-50 text-blue-500"><i :data-lucide="item.icon || 'map-pin'" class="w-5 h-5"></i></div>
-                        <div class="flex-1" @click="openEditModal(item)">
+                    <div v-for="item in sortedItinerary" :key="item.id" class="trip-card p-4 rounded-[1.8rem] flex gap-4 items-center">
+                        <div class="p-3 rounded-2xl bg-pink-50 text-pink-400"><i :data-lucide="item.icon || 'map-pin'" class="w-5 h-5"></i></div>
+                        <div class="flex-1">
                             <div class="flex justify-between items-start">
                                 <div>
-                                    <span v-if="item.time" class="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[10px] font-bold mb-1 inline-block">{{ item.time }}</span>
-                                    <h3 class="font-bold text-gray-800 text-sm leading-tight">{{ item.name }}</h3>
+                                    <span v-if="item.time" class="time-tag mb-1 inline-block">{{ item.time }}</span>
+                                    <h3 class="font-bold text-gray-700 text-sm leading-tight">{{ item.name }}</h3>
                                 </div>
                                 <div class="flex gap-1">
-                                    <button v-if="item.location" @click.stop="openMap(item.location)" class="text-blue-500 bg-blue-50 p-2 rounded-full"><i data-lucide="map" class="w-4 h-4"></i></button>
-                                    <button @click.stop="deleteItem('itinerary', item.id)" class="text-gray-200 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                    <button v-if="item.location" @click="openMap(item.location)" class="text-blue-400 p-2 rounded-full hover:bg-blue-50"><i data-lucide="map" class="w-4 h-4"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -72,185 +107,46 @@
                 </div>
             </div>
 
-            <div v-if="currentTab === 'info'" class="space-y-6">
-                <div class="bg-white p-6 rounded-[2.5rem] border border-gray-100 shadow-sm">
-                    <h3 class="font-bold text-orange-500 flex items-center gap-2 mb-4"><i data-lucide="bed-double"></i> 住宿資訊</h3>
-                    <p class="text-xl font-black text-gray-800">Stanford Busan Hotel</p>
-                    <p class="text-xs text-gray-400 mb-6">Nampo-dong, Busan</p>
-                </div>
-            </div>
-
             <div v-if="currentTab === 'shop'" class="space-y-4">
-                <h2 class="font-black text-2xl mb-4 text-gray-800">Shopping</h2>
-                <div v-for="item in db.shop" :key="item.id" class="flex items-center gap-3 bg-white p-4 rounded-2xl border border-gray-100">
-                    <input type="checkbox" v-model="item.done" @change="saveData" class="w-6 h-6 rounded-full text-blue-500">
-                    <p :class="{'line-through opacity-30': item.done}" class="flex-1 font-bold text-gray-700">{{ item.name }}</p>
-                    <button @click="deleteItem('shop', item.id)" class="text-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <h2 class="font-black text-2xl mb-4 text-gray-700 flex items-center gap-2">
+                    <span class="text-pink-300">🌸</span> Shopping List
+                </h2>
+                <div v-for="item in db.shop" :key="item.id" class="flex items-center gap-3 bg-white p-4 rounded-2xl border border-pink-50 shadow-sm">
+                    <input type="checkbox" v-model="item.done" class="w-6 h-6 rounded-full accent-pink-400">
+                    <p :class="{'line-through opacity-30': item.done}" class="flex-1 font-bold text-gray-600">{{ item.name }}</p>
                 </div>
             </div>
+            
+            </main>
 
-            <div v-if="currentTab === 'cost'" class="space-y-4">
-                <div class="bg-gray-900 p-8 rounded-[2.5rem] text-white shadow-lg text-center">
-                    <p class="text-[10px] opacity-50 font-bold uppercase tracking-widest mb-1">總預算估算</p>
-                    <p class="text-3xl font-black">NT$ {{ totalTwd.toLocaleString() }}</p>
-                </div>
-            </div>
-        </main>
-
-        <button @click="openAddModal" class="fixed bottom-8 right-8 w-16 h-16 bg-blue-500 text-white rounded-full shadow-2xl flex items-center justify-center z-40 border-4 border-white active:scale-90 transition-all">
+        <button @click="openAddModal" class="fixed bottom-8 right-8 w-16 h-16 bg-pink-300 text-white rounded-full shadow-2xl flex items-center justify-center z-40 border-4 border-white">
             <i data-lucide="plus" class="w-8 h-8"></i>
         </button>
-
-        <div v-if="showModal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end justify-center">
-            <div class="bg-white w-full max-w-md rounded-t-[3rem] p-8 max-h-[85vh] overflow-y-auto shadow-2xl">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-black text-gray-800">編輯項目</h3>
-                    <button @click="showModal = false" class="text-gray-400 p-2"><i data-lucide="x"></i></button>
-                </div>
-                <div class="space-y-5">
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 block mb-1">名稱</label>
-                        <input v-model="form.name" type="text" class="w-full border-b-2 py-3 outline-none font-bold text-lg">
-                    </div>
-                    <div>
-                        <label class="text-[10px] font-bold text-gray-400 block mb-1">地圖連結 (Google Maps URL)</label>
-                        <input v-model="form.location" type="text" placeholder="貼上連結..." class="w-full border-b-2 py-2 outline-none text-blue-600 text-sm">
-                    </div>
-                    <div class="flex gap-4">
-                        <div class="flex-1">
-                            <label class="text-[10px] font-bold text-gray-400 block mb-1">時間</label>
-                            <input v-model="form.time" type="time" class="w-full border-b-2 py-2 outline-none font-bold">
-                        </div>
-                        <div class="flex-1">
-                            <label class="text-[10px] font-bold text-gray-400 block mb-1">圖標</label>
-                            <select v-model="form.icon" class="w-full border-b-2 py-2 outline-none">
-                                <option value="map-pin">景點</option>
-                                <option value="utensils">餐飲</option>
-                                <option value="shopping-cart">購物</option>
-                                <option value="plane">交通</option>
-                                <option value="coffee">咖啡廳</option>
-                                <option value="sparkles">景觀</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <button @click="handleSave" class="w-full bg-blue-500 text-white py-5 rounded-[2rem] mt-8 font-black shadow-lg">確認儲存</button>
-            </div>
-        </div>
     </div>
 
     <script>
-        const { createApp, ref, computed, onMounted, watch, nextTick } = Vue;
-
+        const { createApp, ref, computed, onMounted, watch } = Vue;
         createApp({
             setup() {
-                const DB_KEY = 'busan_vFinal_2025_Full_Sync';
+                const DB_KEY = 'busan_trip_data_v2';
+                // 這裡放入你的 JSON 數據
+                const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || { itinerary: [], shop: [], cost: [] });
                 const currentTab = ref('itinerary');
                 const selectedDate = ref('4/10');
-                const showModal = ref(false);
-                const isEditing = ref(false);
-                const editingId = ref(null);
-                const form = ref({ name: '', location: '', icon: 'map-pin', time: '' });
+                const dates = [{id:'4/10',week:'FRI',day:'10'},{id:'4/11',week:'SAT',day:'11'},{id:'4/12',week:'SUN',day:'12'}];
 
-                // 根據截圖填入的初始資料
-                const initialData = {
-                    itinerary: [
-                        // 4/10 (FRI)
-                        { id: 1, date: '4/10', time: '02:50', name: '桃園機場', icon: 'plane', location: '' },
-                        { id: 2, date: '4/10', time: '06:10', name: '釜山機場', icon: 'map-pin', location: '' },
-                        { id: 3, date: '4/10', time: '09:00', name: '東三海水川 (影島賞櫻🌸)', icon: 'sparkles', location: '' },
-                        { id: 4, date: '4/10', time: '12:00', name: '螞蟻家辣炒章魚 南浦洞', icon: 'utensils', location: '' },
-                        { id: 5, date: '4/10', time: '13:00', name: 'Olive Young', icon: 'shopping-cart', location: '' },
-                        { id: 6, date: '4/10', time: '14:00', name: '國際藥局 (Gukje Pharmacy)', icon: 'shopping-cart', location: '' },
-                        { id: 7, date: '4/10', time: '', name: '南浦洞逛街', icon: 'shopping-cart', location: '' },
-                        { id: 8, date: '4/10', time: '', name: '樂天超市', icon: 'shopping-cart', location: '' },
-                        { id: 9, date: '4/10', time: '', name: '二代名果', icon: 'shopping-cart', location: '' },
-                        // 4/11 (SAT)
-                        { id: 10, date: '4/11', time: '11:00', name: '海雲台 Busan butter sand', icon: 'shopping-cart', location: '' },
-                        { id: 11, date: '4/11', time: '11:10', name: 'Delight project 貝果店', icon: 'map-pin', location: '' },
-                        { id: 12, date: '4/11', time: '11:30', name: '海雲台名品糖餅', icon: 'utensils', location: '' },
-                        { id: 13, date: '4/11', time: '12:00', name: 'Keveren House 瑪費蛋糕', icon: 'coffee', location: '' },
-                        { id: 14, date: '4/11', time: '', name: '水邊最高豬肉湯飯', icon: 'utensils', location: '' },
-                        { id: 15, date: '4/11', time: '', name: '新世界百貨 賽騰城店', icon: 'map-pin', location: '' },
-                        { id: 16, date: '4/11', time: '', name: '藍瓶咖啡 釜山民樂店', icon: 'coffee', location: '' },
-                        { id: 17, date: '4/11', time: '', name: '西面逛街', icon: 'shopping-cart', location: '' },
-                        { id: 18, date: '4/11', time: '', name: '고하순 烤肉店', icon: 'map-pin', location: '' },
-                        { id: 19, date: '4/11', time: '', name: '麵包店', icon: 'map-pin', location: '' },
-                        // 4/12 (SUN)
-                        { id: 20, date: '4/12', time: '09:00', name: '本粥 南浦洞店 鮑魚粥', icon: 'utensils', location: '' },
-                        { id: 21, date: '4/12', time: '10:00', name: '富平罐頭市場', icon: 'shopping-cart', location: '' },
-                        { id: 22, date: '4/12', time: '10:10', name: '棉被168', icon: 'shopping-cart', location: '' },
-                        { id: 23, date: '4/12', time: '12:00', name: '山莊1988 西面本店 馬鈴薯店', icon: 'utensils', location: '' },
-                        { id: 24, date: '4/12', time: '13:00', name: 'All Sunday 貝果廣安里', icon: 'map-pin', location: '' },
-                        { id: 25, date: '4/12', time: '20:45', name: '釜山金海機場', icon: 'plane', location: '' }
-                    ],
-                    shop: [
-                        { id: 101, name: '北臉 (The North Face)', done: false },
-                        { id: 102, name: 'Busan butter sand', done: false },
-                        { id: 103, name: '蜂蜜人蔘片', done: false },
-                        { id: 104, name: '阿珠媽背心', done: false },
-                        { id: 105, name: 'Loe 香水', done: false },
-                        { id: 106, name: 'Object 矮袋鼠', done: false }
-                    ],
-                    cost: []
-                };
-
-                const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || initialData);
-                const dates = [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}];
-                
                 const sortedItinerary = computed(() => {
-                    return db.value.itinerary.filter(i => i.date === selectedDate.value).sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
+                    return db.value.itinerary.filter(i => i.date === selectedDate.value)
+                        .sort((a,b) => (a.time||'99:99').localeCompare(b.time||'99:99'));
                 });
 
-                const totalTwd = computed(() => 0); // 簡化處理
+                const openMap = (loc) => { if(loc) window.open(loc.startsWith('http') ? loc : `https://www.google.com/maps/search/${encodeURIComponent(loc)}`, '_blank'); };
+                const exportData = () => { navigator.clipboard.writeText(JSON.stringify(db.value)).then(() => alert('數據已複製')); };
 
-                const refreshIcons = () => nextTick(() => { if(window.lucide) window.lucide.createIcons(); });
-                const saveData = () => { localStorage.setItem(DB_KEY, JSON.stringify(db.value)); refreshIcons(); };
+                onMounted(() => { lucide.createIcons(); });
+                watch([currentTab, selectedDate], () => { setTimeout(() => lucide.createIcons(), 10); });
 
-                const exportData = () => {
-                    const dataStr = JSON.stringify(db.value, null, 2);
-                    navigator.clipboard.writeText(dataStr).then(() => alert('資料已複製！你可以貼給 AI 幫你寫死進代碼。'));
-                };
-
-                const openAddModal = () => {
-                    isEditing.value = false;
-                    form.value = { name: '', location: '', icon: 'map-pin', time: '' };
-                    showModal.value = true;
-                };
-
-                const openEditModal = (item) => {
-                    isEditing.value = true; editingId.value = item.id;
-                    form.value = { ...item }; showModal.value = true;
-                };
-
-                const handleSave = () => {
-                    if(!form.value.name) return;
-                    const target = currentTab.value === 'itinerary' ? db.value.itinerary : db.value.shop;
-                    if(isEditing.value) {
-                        const idx = target.findIndex(i => i.id === editingId.value);
-                        if(idx !== -1) target[idx] = { ...form.value, id: editingId.value };
-                    } else {
-                        target.push({ ...form.value, id: Date.now(), date: selectedDate.value, done: false });
-                    }
-                    saveData(); showModal.value = false;
-                };
-
-                const deleteItem = (type, id) => {
-                    if(confirm('確定刪除？')) {
-                        db.value[type] = db.value[type].filter(i => i.id !== id);
-                        saveData();
-                    }
-                };
-
-                const openMap = (loc) => {
-                    if(!loc) { alert('請先編輯此項目並填入 Google Maps 連結'); return; }
-                    window.open(loc, '_blank');
-                };
-
-                onMounted(() => refreshIcons());
-                watch([currentTab, selectedDate, showModal], () => refreshIcons());
-
-                return { currentTab, selectedDate, dates, db, sortedItinerary, totalTwd, showModal, form, exportData, openAddModal, openEditModal, handleSave, deleteItem, openMap, saveData };
+                return { currentTab, selectedDate, dates, db, sortedItinerary, openMap, exportData };
             }
         }).mount('#app');
     </script>
