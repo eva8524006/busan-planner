@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
@@ -25,7 +24,7 @@
         }
         .text-glow {
             color: #FFD700;
-            text-shadow: 2px 2px 15px rgba(0, 0, 0, 1), 0 0 10px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 15px rgba(0, 0, 0, 1);
         }
 
         .main-content {
@@ -46,12 +45,12 @@
         .tab-btn.active { background-color: #3b82f6; color: white; }
         .date-item.active { background: #3b82f6; color: white; border-color: #3b82f6; }
         
-        /* Icon 選擇網格 */
         .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 15px; }
-        .icon-opt { padding: 10px; border: 1px solid #f1f5f9; border-radius: 12px; display: flex; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .icon-opt { padding: 10px; border: 1px solid #f1f5f9; border-radius: 12px; display: flex; justify-content: center; cursor: pointer; }
         .icon-opt.selected { background: #eff6ff; border-color: #3b82f6; color: #3b82f6; }
 
-        .drag-handle { cursor: grab; touch-action: none; }
+        /* 時間標籤樣式 */
+        .time-tag { background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 8px; font-family: monospace; font-weight: bold; font-size: 11px; }
     </style>
 </head>
 <body>
@@ -83,14 +82,17 @@
                     </div>
                 </div>
 
-                <div id="itinerary-list" class="space-y-4">
-                    <div v-for="item in filteredItinerary" :key="item.id" :data-id="item.id" class="bg-white p-4 rounded-[1.8rem] border border-gray-100 shadow-sm flex gap-4 items-center">
-                        <div class="drag-handle p-3 rounded-2xl bg-blue-50 text-blue-500">
+                <div class="space-y-4">
+                    <div v-for="item in sortedItinerary" :key="item.id" class="bg-white p-4 rounded-[1.8rem] border border-gray-100 shadow-sm flex gap-4 items-center transition-all">
+                        <div class="p-3 rounded-2xl bg-blue-50 text-blue-500">
                             <i :data-lucide="item.icon || 'map-pin'" class="w-5 h-5"></i>
                         </div>
                         <div class="flex-1" @click="openEditModal(item)">
                             <div class="flex justify-between items-start">
-                                <h3 class="font-bold text-gray-800 text-sm">{{ item.name }}</h3>
+                                <div>
+                                    <span v-if="item.time" class="time-tag mb-1 inline-block">{{ item.time }}</span>
+                                    <h3 class="font-bold text-gray-800 text-sm">{{ item.name }}</h3>
+                                </div>
                                 <div class="flex gap-1">
                                     <button v-if="item.location" @click.stop="openMap(item.location)" class="text-blue-500 bg-blue-50 p-2 rounded-full"><i data-lucide="map" class="w-4 h-4"></i></button>
                                     <button @click.stop="deleteItem('itinerary', item.id)" class="text-gray-200 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
@@ -125,21 +127,10 @@
 
             <div v-if="currentTab === 'shop'" class="space-y-4">
                 <h2 class="font-black text-2xl mb-4 text-gray-800">Shopping</h2>
-                <div v-for="item in db.shop" :key="item.id" class="flex items-center gap-3 bg-white p-4 rounded-2xl border border-gray-100">
+                <div v-for="item in db.shop" :key="item.id" class="flex items-center gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                     <input type="checkbox" v-model="item.done" @change="saveData" class="w-6 h-6 rounded-full border-gray-200 text-blue-500">
                     <p :class="{'line-through opacity-30': item.done}" class="flex-1 font-bold text-gray-700">{{ item.name }}</p>
                     <button @click="deleteItem('shop', item.id)" class="text-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button>
-                </div>
-            </div>
-
-            <div v-if="currentTab === 'cost'" class="space-y-4">
-                <div class="bg-gray-900 p-8 rounded-[2.5rem] text-white">
-                    <p class="text-[10px] opacity-50 font-bold tracking-widest mb-1 uppercase">Total</p>
-                    <p class="text-3xl font-black">₩ {{ totalCost.toLocaleString() }}</p>
-                </div>
-                <div v-for="item in db.cost" :key="item.id" class="flex justify-between items-center p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                    <span class="font-bold text-gray-700">{{ item.name }}</span>
-                    <span class="font-black text-blue-500">₩ {{ parseInt(item.amount).toLocaleString() }}</span>
                 </div>
             </div>
         </main>
@@ -157,6 +148,16 @@
                 
                 <div class="space-y-5">
                     <div v-if="currentTab==='itinerary'">
+                        <div class="flex gap-4 mb-4">
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">行程時間</label>
+                                <input v-model="form.time" type="time" class="w-full border-b-2 py-2 outline-none focus:border-blue-500 font-mono font-bold">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">目前圖標</label>
+                                <div class="bg-slate-50 p-2 rounded-lg inline-block"><i :data-lucide="form.icon" class="w-5 h-5"></i></div>
+                            </div>
+                        </div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 block">選擇圖標</label>
                         <div class="icon-grid">
                             <div v-for="iconName in iconPool" :key="iconName" @click="form.icon = iconName" :class="['icon-opt', form.icon === iconName ? 'selected' : '']">
@@ -172,10 +173,6 @@
                     <div v-if="currentTab==='itinerary'">
                         <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">地點 (搜尋名或網址)</label>
                         <input v-model="form.location" type="text" class="w-full border-b-2 py-3 outline-none text-blue-600">
-                    </div>
-                    <div v-if="currentTab==='cost'">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">金額 (KRW)</label>
-                        <input v-model="form.amount" type="number" class="w-full border-b-2 py-3 outline-none text-blue-500 font-bold text-xl">
                     </div>
                     <div>
                         <label class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">備註</label>
@@ -197,24 +194,23 @@
                 const showModal = ref(false);
                 const isEditing = ref(false);
                 const editingId = ref(null);
-                const form = ref({ name: '', location: '', note: '', icon: 'map-pin', amount: 0 });
+                const form = ref({ name: '', location: '', note: '', icon: 'map-pin', amount: 0, time: '' });
                 
-                // 圖標池
                 const iconPool = ['map-pin', 'flower', 'utensils', 'coffee', 'shopping-bag', 'shopping-cart', 'camera', 'bus', 'beer', 'hotel', 'plane', 'sparkles'];
 
-                const DB_KEY = 'busan_vFinal_IconRevive';
+                const DB_KEY = 'busan_vTimeSorted_2025';
                 const defaultData = {
                     itinerary: [
-                        { id: 1, date: '4/10', name: '影島賞櫻', icon: 'flower', location: 'Yeongdo-gu', note: '釜山賞櫻首選' },
-                        { id: 2, date: '4/10', name: 'Olive Young', icon: 'sparkles', location: 'Olive Young Nampo', note: '' },
-                        { id: 3, date: '4/10', name: '南浦洞逛街', icon: 'shopping-bag', location: 'Nampodong', note: '' },
-                        { id: 4, date: '4/10', name: '樂天超市', icon: 'shopping-cart', location: 'Lotte Mart Gwangbok', note: '' },
-                        { id: 5, date: '4/11', name: '海雲台', icon: 'palmtree', location: 'Haeundae', note: '' },
-                        { id: 6, date: '4/11', name: '新世界百貨', icon: 'shopping-bag', location: 'Shinsegae Centum City', note: '' },
-                        { id: 7, date: '4/11', name: '藍瓶咖啡', icon: 'coffee', location: 'Blue Bottle Busan', note: '' },
-                        { id: 8, date: '4/11', name: '西面', icon: 'map-pin', location: 'Seomyeon', note: '' },
-                        { id: 9, date: '4/12', name: '傳統市場', icon: 'utensils', location: 'Gukje Market', note: '' },
-                        { id: 10, date: '4/12', name: '廣安里', icon: 'palmtree', location: 'Gwangalli Beach', note: '' }
+                        { id: 1, date: '4/10', time: '09:30', name: '影島賞櫻', icon: 'flower', location: 'Yeongdo-gu', note: '釜山賞櫻首選' },
+                        { id: 2, date: '4/10', time: '13:00', name: 'Olive Young', icon: 'sparkles', location: 'Olive Young Nampo', note: '' },
+                        { id: 3, date: '4/10', time: '15:30', name: '南浦洞逛街', icon: 'shopping-bag', location: 'Nampodong', note: '' },
+                        { id: 4, date: '4/10', time: '19:00', name: '樂天超市', icon: 'shopping-cart', location: 'Lotte Mart Gwangbok', note: '' },
+                        { id: 5, date: '4/11', time: '10:00', name: '海雲台', icon: 'palmtree', location: 'Haeundae', note: '' },
+                        { id: 6, date: '4/11', time: '14:00', name: '新世界百貨', icon: 'shopping-bag', location: 'Shinsegae Centum City', note: '' },
+                        { id: 7, date: '4/11', time: '16:30', name: '藍瓶咖啡', icon: 'coffee', location: 'Blue Bottle Busan', note: '' },
+                        { id: 8, date: '4/11', time: '19:00', name: '西面', icon: 'map-pin', location: 'Seomyeon', note: '' },
+                        { id: 9, date: '4/12', time: '09:00', name: '傳統市場', icon: 'utensils', location: 'Gukje Market', note: '' },
+                        { id: 10, date: '4/12', time: '14:00', name: '廣安里', icon: 'palmtree', location: 'Gwangalli Beach', note: '' }
                     ],
                     shop: [
                         { id: 201, name: '北臉 (The North Face)', done: false },
@@ -226,27 +222,23 @@
                 const db = ref(JSON.parse(localStorage.getItem(DB_KEY)) || defaultData);
                 const dates = [{id:'4/10',week:'Fri',day:'10'},{id:'4/11',week:'Sat',day:'11'},{id:'4/12',week:'Sun',day:'12'}];
 
-                const filteredItinerary = computed(() => db.value.itinerary.filter(i => i.date === selectedDate.value));
-                const totalCost = computed(() => db.value.cost.reduce((s, i) => s + parseInt(i.amount || 0), 0));
+                // 核心邏輯：自動依照時間排序
+                const sortedItinerary = computed(() => {
+                    return db.value.itinerary
+                        .filter(i => i.date === selectedDate.value)
+                        .sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+                });
 
                 const refreshIcons = () => nextTick(() => { if(window.lucide) window.lucide.createIcons(); });
-
-                const saveData = () => {
-                    localStorage.setItem(DB_KEY, JSON.stringify(db.value));
-                    refreshIcons();
-                };
+                const saveData = () => { localStorage.setItem(DB_KEY, JSON.stringify(db.value)); refreshIcons(); };
 
                 const handleSave = () => {
                     if(!form.value.name) return;
                     if (isEditing.value) {
-                        const target = currentTab.value === 'itinerary' ? db.value.itinerary : (currentTab.value === 'shop' ? db.value.shop : db.value.cost);
-                        const idx = target.findIndex(i => i.id === editingId.value);
-                        if (idx !== -1) target[idx] = { ...form.value, id: editingId.value };
+                        const idx = db.value.itinerary.findIndex(i => i.id === editingId.value);
+                        if (idx !== -1) db.value.itinerary[idx] = { ...form.value, id: editingId.value };
                     } else {
-                        const newItem = { ...form.value, id: Date.now(), date: selectedDate.value, done: false };
-                        if (currentTab.value === 'itinerary') db.value.itinerary.push(newItem);
-                        else if (currentTab.value === 'shop') db.value.shop.push(newItem);
-                        else db.value.cost.push(newItem);
+                        db.value.itinerary.push({ ...form.value, id: Date.now(), date: selectedDate.value });
                     }
                     saveData();
                     showModal.value = false;
@@ -255,24 +247,18 @@
                 const deleteItem = (type, id) => {
                     if (confirm('確定刪除？')) {
                         if (type === 'itinerary') db.value.itinerary = db.value.itinerary.filter(i => i.id !== id);
-                        else if (type === 'shop') db.value.shop = db.value.shop.filter(i => i.id !== id);
-                        else db.value.cost = db.value.cost.filter(i => i.id !== id);
                         saveData();
                     }
                 };
 
-                const openMap = (loc) => {
-                    const url = loc.startsWith('http') ? loc : `http://googleusercontent.com/maps.google.com/7{encodeURIComponent(loc)}`;
-                    window.open(url, '_blank');
-                };
-
-                const openAddModal = () => { isEditing.value = false; form.value = { name: '', location: '', note: '', icon: 'map-pin', amount: 0 }; showModal.value = true; };
+                const openMap = (loc) => window.open(loc.startsWith('http') ? loc : `https://www.google.com/maps/search/${encodeURIComponent(loc)}`, '_blank');
+                const openAddModal = () => { isEditing.value = false; form.value = { name: '', location: '', note: '', icon: 'map-pin', time: '' }; showModal.value = true; };
                 const openEditModal = (item) => { isEditing.value = true; editingId.value = item.id; form.value = { ...item }; showModal.value = true; };
 
                 onMounted(() => { refreshIcons(); });
-                watch([currentTab, selectedDate, showModal], () => refreshIcons());
+                watch([currentTab, selectedDate, showModal, sortedItinerary], () => refreshIcons());
 
-                return { currentTab, selectedDate, dates, db, filteredItinerary, totalCost, showModal, isEditing, form, iconPool, openAddModal, openEditModal, handleSave, deleteItem, openMap, saveData };
+                return { currentTab, selectedDate, dates, db, sortedItinerary, showModal, isEditing, form, iconPool, openAddModal, openEditModal, handleSave, deleteItem, openMap, saveData };
             }
         }).mount('#app');
     </script>
